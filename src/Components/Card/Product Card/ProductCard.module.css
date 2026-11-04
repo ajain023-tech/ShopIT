@@ -1,0 +1,157 @@
+/* ─── Card Shell ──────────────────────────────────────────── */
+.main_card {
+    width: 300px;
+    margin: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 14px 10px;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.10) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    background: #fff;
+    overflow: visible !important;
+}
+
+.main_card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* ─── Image Link ──────────────────────────────────────────── */
+.image_link {
+    display: block;
+    text-decoration: none;
+    width: 100%;
+}
+
+/* ─── Image Container ─────────────────────────────────────── */
+.cart_box {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f7f8fc;
+}
+
+/* ─── Product Image ───────────────────────────────────────── */
+.cart_img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 0.35s ease;
+}
+
+.cart_box:hover .cart_img {
+    transform: scale(1.06);
+}
+
+/* ─── Hover Overlay ───────────────────────────────────────── */
+.img_overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 30, 60, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 12px;
+    backdrop-filter: blur(2px);
+}
+
+.cart_box:hover .img_overlay {
+    opacity: 1;
+}
+
+.overlay_text {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    padding: 8px 22px;
+    border-radius: 50px;
+    backdrop-filter: blur(4px);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+
+/* ─── SALE Badge ──────────────────────────────────────────── */
+.sale_badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    background: linear-gradient(135deg, #e53935, #ff6b6b);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.45);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ─── Card Content (name) ─────────────────────────────────── */
+.card_content {
+    width: 100%;
+    padding: 10px 4px 4px;
+    text-align: center;
+}
+
+/* ─── Card Actions row ────────────────────────────────────── */
+.card_actions {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 4px 0 0 !important;
+    gap: 4px;
+}
+
+/* ─── Price block ─────────────────────────────────────────── */
+.price_block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.original_price {
+    color: #9e9e9e !important;
+    text-decoration: line-through;
+    font-size: 0.78rem !important;
+    line-height: 1.2;
+}
+
+.discounted_price {
+    color: #1565c0 !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    line-height: 1.2;
+}
+
+/* ─── Wishlist button ─────────────────────────────────────── */
+.wishlist_btn {
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+@media screen and (max-width: 960px) {
+    .main_card {
+        width: 250px;
+        padding: 10px;
+    }
+
+    .cart_box {
+        height: 180px;
+    }
+}
