@@ -1,0 +1,16 @@
+.main-card {
+    min-height: 320px;
+    width: min(420px, 92vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.empty-cart-img {
+    width: min(280px, 75vw);
+    height: 220px;
+    object-fit: contain;
+}
