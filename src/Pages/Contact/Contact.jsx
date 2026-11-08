@@ -7,12 +7,10 @@ import {
   Paper,
   TextField,
   Button,
-  InputAdornment,
 } from '@mui/material';
 import { MdEmail, MdPhone, MdLocationOn, MdSend } from 'react-icons/md';
 import { FaGithub } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import CopyRight from '../../Components/CopyRight/CopyRight';
 
 // ─── Contact Info Data ────────────────────────────────────────────────────────
 
@@ -310,11 +308,6 @@ const Contact = () => {
           </Grid>
         </Grid>
       </Container>
-
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <Box sx={{ mt: 8 }}>
-        <CopyRight />
-      </Box>
     </Box>
   );
 };

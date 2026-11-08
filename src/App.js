@@ -13,6 +13,9 @@ import Footer from './Components/Footer/Footer';
 import DesktopNavigation from './Navigation/DesktopNavigation';
 import Wishlist from './Pages/WhisList/Wishlist';
 import OrderSuccess from './Pages/Payment/OrderSuccess';
+import Orders from './Pages/Orders/Orders';
+import Compare from './Pages/Compare/Compare';
+import CompareBar from './Components/Compare/CompareBar';
 import { Flip, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CheckoutForm from './Components/Checkout/CheckoutForm';
@@ -41,16 +44,20 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/Detail/type/:cat/:id' element={<ProductDetail />} />
-            <Route path='product/type/:cat' element={<SingleCategory />} />
+            <Route path='/products' element={<SingleCategory />} />
+            <Route path='/product/type/:cat' element={<SingleCategory />} />
             <Route path='/cart' element={<Cart />} />
             <Route path='/wishlist' element={<Wishlist />} />
             <Route path='/checkout' element={<CheckoutForm />} />
             <Route path='/update' element={<UpdateDetails />} />
             <Route path='/ordersuccess' element={<OrderSuccess />} />
+            <Route path='/orders' element={<Orders />} />
+            <Route path='/compare' element={<Compare />} />
             <Route path='/about' element={<About />} />
             <Route path='/contact' element={<Contact />} />
           </Routes>
         </div>
+        <CompareBar />
         <MobileNavigation />
         <Footer />
       </Router>

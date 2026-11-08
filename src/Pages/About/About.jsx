@@ -8,7 +8,6 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
-import CopyRight from '../../Components/CopyRight/CopyRight';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -284,11 +283,6 @@ const About = () => {
           ))}
         </Grid>
       </Container>
-
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <Box sx={{ mt: 8 }}>
-        <CopyRight />
-      </Box>
     </Box>
   );
 };

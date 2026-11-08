@@ -3,136 +3,136 @@ import React, { useContext, useEffect, useState } from 'react'
 import { AiOutlineHeart, AiOutlineShoppingCart, AiFillCloseCircle } from 'react-icons/ai'
 import { MdDarkMode, MdLightMode } from 'react-icons/md'
 import { CgProfile } from 'react-icons/cg'
-import { FiLogOut } from 'react-icons/fi'
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Badge, Button, Dialog, DialogActions, DialogContent, Menu, MenuItem, Slide, Tooltip, Typography } from '@mui/material';
-import { ContextFunction } from '../Context/Context';
-import { toast } from 'react-toastify';
+import { FiLogOut, FiPackage } from 'react-icons/fi'
+import { FaShoppingBag } from 'react-icons/fa'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Badge, Button, Dialog, DialogActions, DialogContent, Tooltip, Typography } from '@mui/material'
+import { ContextFunction } from '../Context/Context'
+import { toast } from 'react-toastify'
 import { getCart, getWishList, handleLogOut, handleClickOpen, handleClose, Transition } from '../Constants/Constant'
+import OfferStrip from './OfferStrip'
+import SearchBar from '../Components/SearchBar/SearchBar'
+
+export const categoryLinks = [
+  { label: 'All Products', to: '/products' },
+  { label: 'Clothing', to: '/product/type/cloths' },
+  { label: 'Shoes', to: '/product/type/shoe' },
+  { label: 'Electronics', to: '/product/type/electronics' },
+  { label: 'Books', to: '/product/type/book' },
+  { label: 'Jewellery', to: '/product/type/jewelry' },
+]
 
 const DesktopNavigation = () => {
+  const { cart, setCart, wishlistData, setWishlistData, darkMode, setDarkMode, compareList, setBudget } = useContext(ContextFunction)
+  const [openAlert, setOpenAlert] = useState(false)
+  const navigate = useNavigate()
+  const authToken = localStorage.getItem('Authorization')
+  const setProceed = authToken !== null
 
-  const { cart, setCart, wishlistData, setWishlistData, darkMode, setDarkMode } = useContext(ContextFunction)
+  useEffect(() => {
+    getCart(setProceed, setCart, authToken)
+    getWishList(setProceed, setWishlistData, authToken)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleDarkModeToggle = () => {
     const next = !darkMode
     setDarkMode(next)
     localStorage.setItem('darkMode', next)
   }
-  const [openAlert, setOpenAlert] = useState(false);
-  const navigate = useNavigate()
-  let authToken = localStorage.getItem('Authorization');
-  let setProceed = authToken !== null ? true : false
-  useEffect(() => {
-    getCart(setProceed, setCart, authToken)
-    getWishList(setProceed, setWishlistData, authToken)
-  }, [])
 
+  const cartCount = setProceed ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0
 
   return (
     <>
-      <nav className='nav'>
-        <div className="logo">
-          <Link to='/'>
-            <span >Shop It</span>
+      <header className='header'>
+        <OfferStrip />
+
+        <nav className='nav'>
+          <Link to='/' className='logo'>
+            <FaShoppingBag className='logo__icon' />
+            <span>ShopIt</span>
           </Link>
-        </div>
-        <div className="nav-items">
-          <ul className="nav-items">
-            <li className="nav-links">
-              <NavLink to='/'>
-                <span className='nav-icon-span'>  Home</span>
-              </NavLink>
-            </li>
-            <li className="nav-links">
-              <NavLink to='/about'>
-                <span className='nav-icon-span'>  About</span>
-              </NavLink>
-            </li>
-            <li className="nav-links">
-              <NavLink to='/contact'>
-                <span className='nav-icon-span'>  Contact</span>
-              </NavLink>
-            </li>
 
-            <li className="nav-links">
-              <Tooltip title='Cart'>
-                <NavLink to="/cart">
-                  <span className='nav-icon-span'>Cart    <Badge badgeContent={setProceed ? cart.length : 0}> <AiOutlineShoppingCart className='nav-icon' /></Badge></span>
-                </NavLink>
-              </Tooltip>
-            </li>
-            <li className="nav-links">
-              <Tooltip title='Wishlist'>
-                <NavLink to="/wishlist">
-                  <span className='nav-icon-span'>Wishlist  <Badge badgeContent={setProceed ? wishlistData.length : 0}> <AiOutlineHeart className='nav-icon' /></Badge></span>
-                </NavLink>
-              </Tooltip>
-            </li>
+          <div className='nav__search'>
+            <SearchBar />
+          </div>
 
-            {
-              setProceed ?
-                <>
-                  <li className="nav-links">
-                    <Tooltip title='Profile'>
-                      <NavLink to='/update'>
-                        <span className='nav-icon-span'>  <CgProfile style={{ fontSize: 29, marginTop: 7,marginRight:10 }} /></span>
-                      </NavLink>
-                    </Tooltip>
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', justifyItems: 'center' }} onClick={() => handleClickOpen(setOpenAlert)}>
-                    <Button variant='contained' className='nav-icon-span' sx={{ marginBottom: 1 }} endIcon={<FiLogOut />}>
-                      <Typography variant='button'> Logout</Typography>
-                    </Button>
-                  </li>
-                </>
-                :
-                <li className="nav-links">
-                  <Tooltip title='Login'>
-                    <NavLink to='/login'>
-                      <span className='nav-icon-span'>   <CgProfile style={{ fontSize: 29, marginTop: 7 }} /></span>
-                    </NavLink>
-                  </Tooltip>
-                </li>
-            }
-          </ul>
-          <button
-            onClick={handleDarkModeToggle}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: darkMode ? '#facc15' : '#334155',
-              fontSize: '1.6rem',
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: '12px',
-              transition: 'color 0.2s'
-            }}
-          >
-            {darkMode ? <MdLightMode /> : <MdDarkMode />}
-          </button>
+          <div className='nav__actions'>
+            <Tooltip title={darkMode ? 'Light mode' : 'Dark mode'}>
+              <button className='nav__action nav__theme' onClick={handleDarkModeToggle} aria-label='Toggle dark mode'>
+                {darkMode ? <MdLightMode /> : <MdDarkMode />}
+              </button>
+            </Tooltip>
+
+            {setProceed ? (
+              <>
+                <NavLink to='/update' className='nav__action'>
+                  <CgProfile />
+                  <span>Profile</span>
+                </NavLink>
+                <NavLink to='/orders' className='nav__action'>
+                  <FiPackage />
+                  <span>Orders</span>
+                </NavLink>
+              </>
+            ) : (
+              <NavLink to='/login' className='nav__action'>
+                <CgProfile />
+                <span>Login</span>
+              </NavLink>
+            )}
+
+            <NavLink to='/wishlist' className='nav__action'>
+              <Badge badgeContent={setProceed ? wishlistData.length : 0} color='secondary'>
+                <AiOutlineHeart />
+              </Badge>
+              <span>Wishlist</span>
+            </NavLink>
+
+            <NavLink to='/cart' className='nav__action'>
+              <Badge badgeContent={cartCount} color='secondary'>
+                <AiOutlineShoppingCart />
+              </Badge>
+              <span>Cart</span>
+            </NavLink>
+
+            {setProceed && (
+              <button className='nav__action' onClick={() => handleClickOpen(setOpenAlert)}>
+                <FiLogOut />
+                <span>Logout</span>
+              </button>
+            )}
+          </div>
+        </nav>
+
+        <div className='category-bar'>
+          {categoryLinks.map(link => (
+            <NavLink key={link.to} to={link.to} end className='category-bar__link'>
+              {link.label}
+            </NavLink>
+          ))}
+          <NavLink to='/compare' className='category-bar__link category-bar__compare'>
+            Compare{compareList.length > 0 ? ` (${compareList.length})` : ''}
+          </NavLink>
         </div>
-      </nav >
+      </header>
+
       <Dialog
         open={openAlert}
         TransitionComponent={Transition}
         keepMounted
-        onClose={handleClose}
-        aria-describedby="alert-dialog-slide-description"
+        onClose={() => handleClose(setOpenAlert)}
       >
         <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 }, display: 'flex', justifyContent: 'center' }}>
-          <Typography variant='h6'>  Do You Want To Logout?</Typography>
+          <Typography variant='h6'>Do you want to logout?</Typography>
         </DialogContent>
-        <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-          <Link to="/">
-            <Button variant='contained' endIcon={<FiLogOut />} color='primary' onClick={() => handleLogOut(setProceed, toast, navigate, setOpenAlert)}>Logout</Button></Link>
-          <Button variant='contained' color='error' endIcon={<AiFillCloseCircle />} onClick={() => handleClose(setOpenAlert)}>Close</Button>
+        <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly', pb: 2 }}>
+          <Button variant='contained' endIcon={<FiLogOut />} onClick={() => { handleLogOut(setProceed, toast, navigate, setOpenAlert); setCart([]); setWishlistData([]); setBudget(0) }}>Logout</Button>
+          <Button variant='outlined' color='error' endIcon={<AiFillCloseCircle />} onClick={() => handleClose(setOpenAlert)}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </>
-
   )
 }
 
