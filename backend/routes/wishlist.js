@@ -35,7 +35,7 @@ router.post('/addwishlist', authUser, async (req, res) => {
 router.delete('/deletewishlist/:id', authUser, async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await Wishlist.findByIdAndDelete(id)
+        const result = await Wishlist.findOneAndDelete({ _id: id, user: req.user.id })
         res.send(result)
     } catch (error) {
         res.status(500).send("Something went wrong")

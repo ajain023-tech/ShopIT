@@ -1,159 +1,214 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Container, Dialog, DialogActions, DialogContent, Grid, TextField, Typography } from '@mui/material'
-import styles from './Chekout.module.css'
-import { BsFillCartCheckFill } from 'react-icons/bs'
-import { MdUpdate } from 'react-icons/md'
-import axios from 'axios'
-import { ContextFunction } from '../../Context/Context'
 import { Link, useNavigate } from 'react-router-dom'
+import { Button, CircularProgress, Grid, Radio, Step, StepLabel, Stepper, TextField } from '@mui/material'
+import { MdPayments } from 'react-icons/md'
+import axios from 'axios'
 import { toast } from 'react-toastify'
-import CopyRight from '../CopyRight/CopyRight'
-import { Transition, handleClose } from '../../Constants/Constant'
-import { AiFillCloseCircle, AiOutlineSave } from 'react-icons/ai'
+import { ContextFunction } from '../../Context/Context'
+import OrderSummary from '../../Pages/Cart/OrderSummary'
+import { getCartTotals } from '../../Constants/Constant'
+import { formatPrice } from '../../Helpers/price'
+import '../../Pages/Cart/Cart.css'
+import styles from './Chekout.module.css'
+
+const steps = ['Address', 'Review', 'Place Order']
+
+const addressFields = [
+    { name: 'firstName', label: 'First Name', half: true },
+    { name: 'lastName', label: 'Last Name', half: true },
+    { name: 'phoneNumber', label: 'Phone Number', half: true, type: 'tel' },
+    { name: 'userEmail', label: 'Email', half: true },
+    { name: 'address', label: 'Address (House no, street, area)' },
+    { name: 'city', label: 'City', half: true },
+    { name: 'zipCode', label: 'PIN Code', half: true, type: 'tel' },
+    { name: 'userState', label: 'State' },
+]
 
 const CheckoutForm = () => {
-    const { setCart } = useContext(ContextFunction)
-    const [openAlert, setOpenAlert] = useState(false)
+    const { cart, setCart } = useContext(ContextFunction)
+    const [activeStep, setActiveStep] = useState(0)
+    const [loading, setLoading] = useState(true)
     const [placingOrder, setPlacingOrder] = useState(false)
     const [userDetails, setUserDetails] = useState({
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        userEmail: '',
-        address: '',
-        zipCode: '',
-        city: '',
-        userState: '',
+        firstName: '', lastName: '', phoneNumber: '', userEmail: '',
+        address: '', zipCode: '', city: '', userState: '',
     })
 
     const navigate = useNavigate()
     const authToken = localStorage.getItem('Authorization')
-    const setProceed = Boolean(authToken)
+    const headers = { headers: { 'Authorization': authToken } }
 
     useEffect(() => {
         window.scroll(0, 0)
-        if (setProceed) {
-            getUserData()
-        } else {
-            navigate('/')
+        if (!authToken) {
+            navigate('/login')
+            return
         }
+        const loadData = async () => {
+            try {
+                const [userRes, cartRes] = await Promise.all([
+                    axios.get(`${process.env.REACT_APP_GET_USER_DETAILS}`, headers),
+                    axios.get(`${process.env.REACT_APP_GET_CART}`, headers),
+                ])
+                const data = userRes.data || {}
+                setUserDetails({
+                    firstName: data.firstName || '',
+                    lastName: data.lastName || '',
+                    userEmail: data.email || '',
+                    phoneNumber: data.phoneNumber || '',
+                    address: data.address || '',
+                    zipCode: data.zipCode || '',
+                    city: data.city || '',
+                    userState: data.userState || '',
+                })
+                setCart(cartRes.data)
+            } catch (error) {
+                toast.error('Could not load checkout', { autoClose: 1000, theme: 'colored' })
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const getUserData = async () => {
-        try {
-            const { data } = await axios.get(`${process.env.REACT_APP_GET_USER_DETAILS}`, {
-                headers: { 'Authorization': authToken }
-            })
-            if (!data) return
-            setUserDetails({
-                firstName: data.firstName || '',
-                lastName: data.lastName || '',
-                userEmail: data.email || '',
-                phoneNumber: data.phoneNumber || '',
-                address: data.address || '',
-                zipCode: data.zipCode || '',
-                city: data.city || '',
-                userState: data.userState || '',
-            })
-            if (!data.address || !data.city || !data.zipCode || !data.userState) {
-                setOpenAlert(true)
-            }
-        } catch (error) {
-            console.log('getUserData error:', error)
-        }
-    }
+    const cartItems = cart.filter(item => item.productId)
+    const totals = getCartTotals(cartItems)
 
     const handleOnchange = (e) => {
         setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
     }
 
-    const checkOutHandler = async (e) => {
-        e.preventDefault()
-        const { firstName, lastName, userEmail, phoneNumber, address, zipCode, city, userState } = userDetails
-        if (!firstName || !lastName || !userEmail || !phoneNumber || !address || !zipCode || !city || !userState) {
-            toast.error("Please fill all fields", { autoClose: 1500, theme: "colored" })
-            return
+    const validateAddress = () => {
+        const missing = addressFields.find(field => !String(userDetails[field.name]).trim())
+        if (missing) {
+            toast.error(`Please enter ${missing.label.toLowerCase()}`, { autoClose: 1200, theme: 'colored' })
+            return false
         }
+        if (!/^\d{6}$/.test(userDetails.zipCode.trim())) {
+            toast.error('Please enter a valid 6 digit PIN code', { autoClose: 1200, theme: 'colored' })
+            return false
+        }
+        return true
+    }
+
+    const goToReview = (e) => {
+        e.preventDefault()
+        if (validateAddress()) setActiveStep(1)
+    }
+
+    const placeOrder = async () => {
         try {
             setPlacingOrder(true)
-            const { data } = await axios.post(`${process.env.REACT_APP_PLACE_ORDER}`, { userDetails }, {
-                headers: { 'Authorization': authToken }
-            })
+            const { data } = await axios.post(`${process.env.REACT_APP_PLACE_ORDER}`, { userDetails }, headers)
+            setActiveStep(2)
             setCart([])
-            sessionStorage.removeItem('totalAmount')
             navigate(`/ordersuccess?order=${data._id}`)
         } catch (error) {
-            toast.error(error.response?.data || "Could not place order", { autoClose: 1500, theme: "colored" })
+            toast.error(error.response?.data || 'Could not place order', { autoClose: 1500, theme: 'colored' })
         } finally {
             setPlacingOrder(false)
         }
     }
 
+    if (loading) {
+        return <div className='cart-loading'><CircularProgress /></div>
+    }
+
+    if (cartItems.length === 0) {
+        return (
+            <div className='checkout' style={{ textAlign: 'center' }}>
+                <h2>Your cart is empty</h2>
+                <Button component={Link} to='/products' variant='contained' sx={{ mt: 2 }}>Continue Shopping</Button>
+            </div>
+        )
+    }
+
     return (
-        <>
-            <Container sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', marginBottom: 10 }}>
-                <Typography variant='h6' sx={{ margin: '20px 0' }}>Checkout</Typography>
+        <div className='checkout'>
+            <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
+                {steps.map(label => (
+                    <Step key={label}><StepLabel>{label}</StepLabel></Step>
+                ))}
+            </Stepper>
 
-                <form noValidate autoComplete="off" className={styles.checkout_form} onSubmit={checkOutHandler}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField disabled label="First Name" name='firstName' value={userDetails.firstName} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField disabled label="Last Name" name='lastName' value={userDetails.lastName} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField disabled label="Contact Number" type='tel' name='phoneNumber' value={userDetails.phoneNumber} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField disabled label="Email" name='userEmail' value={userDetails.userEmail} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField label="Address" name='address' value={userDetails.address} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="City" name='city' value={userDetails.city} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField type='tel' label="Postal/Zip Code" name='zipCode' value={userDetails.zipCode} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField label="Province/State" name='userState' value={userDetails.userState} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                    </Grid>
-                    <Container sx={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 5 }}>
-                        <Link to='/update'>
-                            <Button variant='contained' endIcon={<MdUpdate />}>Update</Button>
-                        </Link>
-                        <Button variant='contained' endIcon={<BsFillCartCheckFill />} type='submit' disabled={placingOrder}>
-                            {placingOrder ? 'Placing Order...' : 'Place Order'}
-                        </Button>
-                    </Container>
-                </form>
+            <div className='cart__layout'>
+                <div className={styles.panel}>
+                    {activeStep === 0 && (
+                        <form noValidate autoComplete='off' onSubmit={goToReview}>
+                            <h2 className={styles.heading}>Delivery Address</h2>
+                            <Grid container spacing={2}>
+                                {addressFields.map(field => (
+                                    <Grid item xs={12} sm={field.half ? 6 : 12} key={field.name}>
+                                        <TextField
+                                            label={field.label}
+                                            name={field.name}
+                                            type={field.type || 'text'}
+                                            value={userDetails[field.name]}
+                                            onChange={handleOnchange}
+                                            fullWidth
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                            <div className={styles.actions}>
+                                <Button component={Link} to='/cart'>Back to Cart</Button>
+                                <Button type='submit' variant='contained' size='large'>Continue</Button>
+                            </div>
+                        </form>
+                    )}
 
-                <Dialog
-                    open={openAlert}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={() => handleClose(setOpenAlert)}
-                    aria-describedby="checkout-alert-dialog"
-                >
-                    <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 }, display: 'flex', justifyContent: 'center' }}>
-                        <Typography variant='h6'>Please add your address details before checkout.</Typography>
-                    </DialogContent>
-                    <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                        <Link to='/update'>
-                            <Button variant='contained' endIcon={<AiOutlineSave />} color='primary'>Add Address</Button>
-                        </Link>
-                        <Button variant='contained' color='error' endIcon={<AiFillCloseCircle />} onClick={() => handleClose(setOpenAlert)}>
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Container>
+                    {activeStep >= 1 && (
+                        <>
+                            <h2 className={styles.heading}>Review your order</h2>
 
-            <CopyRight sx={{ mt: 8, mb: 10 }} />
-        </>
+                            <div className={styles.box}>
+                                <div className={styles.boxHeader}>
+                                    <b>Deliver to</b>
+                                    <Button size='small' onClick={() => setActiveStep(0)}>Change</Button>
+                                </div>
+                                <p>{userDetails.firstName} {userDetails.lastName}, {userDetails.phoneNumber}</p>
+                                <p>{userDetails.address}, {userDetails.city}, {userDetails.userState} - {userDetails.zipCode}</p>
+                            </div>
+
+                            <div className={styles.box}>
+                                <b>Items ({totals.itemCount})</b>
+                                {cartItems.map(item => (
+                                    <div className={styles.item} key={item._id}>
+                                        <img src={item.productId.image} alt={item.productId.name} />
+                                        <div>
+                                            <p>{item.productId.name}</p>
+                                            <span>Qty {item.quantity} × {formatPrice(item.productId.price)}</span>
+                                        </div>
+                                        <b>{formatPrice(item.productId.price * item.quantity)}</b>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className={styles.box}>
+                                <b>Payment Method</b>
+                                <label className={styles.payment}>
+                                    <Radio checked size='small' />
+                                    <MdPayments />
+                                    <span>Cash on Delivery</span>
+                                </label>
+                            </div>
+
+                            <div className={styles.actions}>
+                                <Button onClick={() => setActiveStep(0)}>Back</Button>
+                                <Button variant='contained' color='secondary' size='large' onClick={placeOrder} disabled={placingOrder}>
+                                    {placingOrder ? 'Placing Order...' : `Place Order • ${formatPrice(totals.total)}`}
+                                </Button>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                <aside className='cart__summary'>
+                    <OrderSummary totals={totals} />
+                </aside>
+            </div>
+        </div>
     )
 }
 

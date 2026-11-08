@@ -1,50 +1,53 @@
-import { Button, Card, CardActionArea, CardActions, CardContent, Rating, Tooltip, Typography } from '@mui/material'
-import { Box } from '@mui/system'
 import { Link } from 'react-router-dom'
-import { AiFillDelete } from 'react-icons/ai'
+import { AiOutlineDelete, AiOutlineHeart } from 'react-icons/ai'
+import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../../Helpers/price'
 import styles from './CartCard.module.css'
-const CartCard = ({ product, removeFromCart }) => {
 
+const MAX_QUANTITY = 10
+
+// one row in the cart: image, name, price, quantity buttons and actions
+const CartCard = ({ item, onQuantityChange, onRemove, onMoveToWishlist, updating }) => {
+    const product = item.productId
+    if (!product) return null
+
+    const discount = getDiscountPercent(product)
+    const detailPath = `/Detail/type/${product.type}/${product._id}`
 
     return (
-        <Card className={styles.main_cart}>
-            <Link to={`/Detail/type/${product?.productId?.type}/${product?.productId?._id}`}>
-            <CardActionArea className={styles.card_action} >
-                <Box className={styles.img_box}  >
-                        <img alt={product?.productId?.name} loading='lazy' src={product?.productId?.image} className={styles.img} />
-                </Box>
-                <CardContent>
-                    <Typography gutterBottom variant="h6" sx={{ textAlign: "center" }}>
-                        {product?.productId?.name.length > 20 ? product?.productId?.name.slice(0, 20) + '...' : product?.productId?.name}
-                    </Typography>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            // background: 'red',
-                            justifyContent:'center',
-                            '& > *': {
-                                m: 1,
-                            },
-                        }}
-                    >
-                        {product.quantity && <Button>  <Typography variant='body2' color='black'>  Quantity {' ' + product.quantity} </Typography></Button>}
-                        <Typography gutterBottom variant="h6" sx={{ textAlign: "center" }}>
-                            ₹{product?.productId?.price}
-                        </Typography>
-                    </Box>
-                </CardContent>
-            </CardActionArea>
+        <div className={styles.row}>
+            <Link to={detailPath} className={styles.imageBox}>
+                <img src={product.image} alt={product.name} className={styles.image} loading='lazy' />
             </Link>
-            <CardActions style={{ display: "flex", justifyContent: "space-between", width: '100%' }}>
-                <Tooltip
-                    title='Remove From Cart'>
-                    <Button className='all-btn' sx={{ width: 10, borderRadius: '30px' }} variant='contained' color='error' onClick={() => removeFromCart(product)}>
-                        <AiFillDelete style={{ fontSize: 15 }} />
-                    </Button>
-                </Tooltip>
-                <Typography> <Rating name="read-only" value={Math.round(product?.productId?.rating)} readOnly  precision={0.5}/></Typography>
-            </CardActions>
-        </Card >
+
+            <div className={styles.details}>
+                <p className={styles.brand}>{product.brand || product.type}</p>
+                <Link to={detailPath} className={styles.name}>{product.name}</Link>
+
+                <div className={styles.priceRow}>
+                    <span className={styles.price}>{formatPrice(product.price)}</span>
+                    {discount > 0 && <span className={styles.mrp}>{formatPrice(getOriginalPrice(product))}</span>}
+                    {discount > 0 && <span className={styles.off}>{discount}% off</span>}
+                </div>
+
+                <div className={styles.controls}>
+                    <div className={styles.qty}>
+                        <button onClick={() => onQuantityChange(item, item.quantity - 1)} disabled={updating || item.quantity <= 1} aria-label='Decrease quantity'>−</button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => onQuantityChange(item, item.quantity + 1)} disabled={updating || item.quantity >= MAX_QUANTITY} aria-label='Increase quantity'>+</button>
+                    </div>
+                    {onMoveToWishlist && (
+                        <button className={styles.action} onClick={() => onMoveToWishlist(item)} disabled={updating}>
+                            <AiOutlineHeart /> Move to Wishlist
+                        </button>
+                    )}
+                    <button className={`${styles.action} ${styles.remove}`} onClick={() => onRemove(item)} disabled={updating}>
+                        <AiOutlineDelete /> Remove
+                    </button>
+                </div>
+            </div>
+
+            <div className={styles.lineTotal}>{formatPrice(product.price * item.quantity)}</div>
+        </div>
     )
 }
 

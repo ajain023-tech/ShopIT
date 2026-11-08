@@ -1,56 +1,46 @@
-import { Box, Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
-import React from 'react'
+import { Button, Divider } from '@mui/material'
 import { IoBagCheckOutline } from 'react-icons/io5'
+import { FREE_SHIPPING_ABOVE } from '../../Constants/Constant'
+import { formatPrice } from '../../Helpers/price'
 
-const OrderSummary = ({ proceedToCheckout, total, shippingCoast }) => {
+// price details box used on the cart and checkout pages
+const OrderSummary = ({ totals, onCheckout, buttonLabel = 'Proceed to Checkout', disabled }) => {
+    const { itemCount, itemsTotal, mrpTotal, savings, shipping, total } = totals
+    const amountForFreeShipping = FREE_SHIPPING_ABOVE - itemsTotal
+
     return (
-        <Card
-            sx={{ width: { xs: 450, sm: 550, md: 550, lg: 700 } }}
-            // className={classes.root}
-
-            elevation={15}
-        >
-            <CardContent >
-                <Typography variant="div" component="h1">
-                    {" "}
-                    Order Summary
-                </Typography>
-                <Typography variant="subtitle2">
-                    <hr />
-                </Typography>
-                <Grid sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }} >
-                        <Typography variant="body1" component="div" color='primary'>
-                            SubTotal
-                        </Typography>
-                        <Typography variant="h6" component="div" color='primary'>
-                            ₹{total - shippingCoast}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }} >
-                        <Typography variant="body1" component="div" color='primary'>
-                            Shipping
-                        </Typography>
-                        <Typography variant="h6" component="div" color='primary'>
-                            ₹{shippingCoast}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-                        <Typography variant="body1" component="div" color='primary'>
-                            Total
-                        </Typography>
-                        <Typography variant="h6" component="div" color='primary'>
-                            ₹{total}
-                        </Typography>
-                    </Box>
-                </Grid>
-            </CardContent>
-            <CardActions sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
-                <Button variant='contained' size='large' endIcon={<IoBagCheckOutline />} color="primary" onClick={proceedToCheckout}>
-                    Checkout
+        <div className='summary'>
+            <p className='summary__title'>Price Details</p>
+            <Divider />
+            <div className='summary__line'>
+                <span>Price ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+                <span>{formatPrice(mrpTotal)}</span>
+            </div>
+            {savings > 0 && (
+                <div className='summary__line summary__green'>
+                    <span>Discount</span>
+                    <span>− {formatPrice(savings)}</span>
+                </div>
+            )}
+            <div className='summary__line'>
+                <span>Delivery Charges</span>
+                <span className={shipping === 0 ? 'summary__green' : ''}>{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span>
+            </div>
+            <Divider />
+            <div className='summary__line summary__total'>
+                <span>Total Amount</span>
+                <span>{formatPrice(total)}</span>
+            </div>
+            {savings > 0 && <p className='summary__savings'>You save {formatPrice(savings)} on this order</p>}
+            {shipping > 0 && amountForFreeShipping > 0 && (
+                <p className='summary__hint'>Add {formatPrice(amountForFreeShipping)} more for free delivery</p>
+            )}
+            {onCheckout && (
+                <Button fullWidth variant='contained' size='large' color='secondary' endIcon={<IoBagCheckOutline />} onClick={onCheckout} disabled={disabled} sx={{ mt: 1 }}>
+                    {buttonLabel}
                 </Button>
-            </CardActions>
-        </Card >
+            )}
+        </div>
     )
 }
 

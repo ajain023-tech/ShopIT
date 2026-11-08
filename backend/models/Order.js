@@ -19,6 +19,18 @@ const OrderSchema = new Schema({
     totalAmount: {
         type: Number,
     },
+    shippingCharge: {
+        type: Number,
+        default: 0,
+    },
+    paymentMethod: {
+        type: String,
+        default: 'Cash on Delivery',
+    },
+    status: {
+        type: String,
+        default: 'Placed',
+    },
 }, { timestamps: true })
 
 module.exports = mongoose.model("order", OrderSchema)

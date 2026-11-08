@@ -19,9 +19,43 @@ const getWishList = async (setProceed, setWishlistData, authToken) => {
         setWishlistData(data)
     }
 }
+// free delivery on orders of ₹999 or more, otherwise ₹99 (same rule as the backend)
+const FREE_SHIPPING_ABOVE = 999
+const SHIPPING_CHARGE = 99
+const getShippingCharge = (itemsTotal) => (itemsTotal === 0 || itemsTotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_CHARGE)
+
+// totals for a list of cart items
+const getCartTotals = (cartItems) => {
+    const items = cartItems.filter(item => item.productId)
+    const itemsTotal = items.reduce((sum, item) => sum + item.productId.price * item.quantity, 0)
+    const mrpTotal = items.reduce((sum, item) =>
+        sum + Math.max(item.productId.originalPrice || 0, item.productId.price) * item.quantity, 0)
+    const shipping = getShippingCharge(itemsTotal)
+    return {
+        itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+        itemsTotal,
+        mrpTotal,
+        savings: mrpTotal - itemsTotal,
+        shipping,
+        total: itemsTotal + shipping,
+    }
+}
+
+// add a product to the cart and refresh the cart in context
+const addToCart = async (productId, quantity, authToken, setCart) => {
+    await axios.post(`${process.env.REACT_APP_ADD_CART}`, { _id: productId, quantity }, {
+        headers: { 'Authorization': authToken }
+    })
+    const { data } = await axios.get(`${process.env.REACT_APP_GET_CART}`, {
+        headers: { 'Authorization': authToken }
+    })
+    setCart(data)
+}
+
 const handleLogOut = (setProceed, toast, navigate, setOpenAlert) => {
     if (setProceed) {
         localStorage.removeItem('Authorization')
+        localStorage.removeItem('shopIt_user')
         toast.success("Logout Successfully", { autoClose: 500, theme: 'colored' })
         navigate('/')
         setOpenAlert(false)
@@ -65,4 +99,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 
 
 
-export { getCart, getWishList, handleClickOpen, handleClose, handleLogOut, getAllProducts, getSingleProduct, Transition }
+export {
+    getCart, getWishList, handleClickOpen, handleClose, handleLogOut, getAllProducts, getSingleProduct, Transition,
+    FREE_SHIPPING_ABOVE, getShippingCharge, getCartTotals, addToCart
+}

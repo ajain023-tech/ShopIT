@@ -1,179 +1,157 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ContextFunction } from '../../Context/Context';
-import {
-    Button,
-    Typography,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    Container,
-    CssBaseline,
-    Box,
-} from '@mui/material'
+import { Link, useNavigate } from 'react-router-dom'
+import { Breadcrumbs, CircularProgress, Typography } from '@mui/material'
+import { AiOutlineLogin } from 'react-icons/ai'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { AiFillCloseCircle, AiOutlineLogin } from 'react-icons/ai'
-import CartCard from '../../Components/Card/CartCard/CartCard';
-import ProductCard from '../../Components/Card/Product Card/ProductCard';
+import { ContextFunction } from '../../Context/Context'
+import CartCard from '../../Components/Card/CartCard/CartCard'
+import EmptyState from '../../Components/EmptyState/EmptyState'
+import OrderSummary from './OrderSummary'
+import BudgetCard from '../../Components/Budget/BudgetCard'
+import SmartSavings from '../../Components/Budget/SmartSavings'
+import useBudget from '../../Hooks/useBudget'
+import useWishlist from '../../Hooks/useWishlist'
+import { EmptyCart } from '../../Assets/Images/Image'
+import { addToCart, getCartTotals } from '../../Constants/Constant'
 import './Cart.css'
-import OrderSummary from './OrderSummary';
-import { EmptyCart } from '../../Assets/Images/Image';
-import { Transition } from '../../Constants/Constant';
-import CopyRight from '../../Components/CopyRight/CopyRight';
-
-
 
 const Cart = () => {
     const { cart, setCart } = useContext(ContextFunction)
-    const [total, setTotal] = useState(0)
-    const [openAlert, setOpenAlert] = useState(false);
-    const [previousOrder, setPreviousOrder] = useState([]);
-    let shippingCoast = 100
-
-
+    const { addToWishlist } = useWishlist()
+    const { isOverBudget } = useBudget()
+    const [swappingId, setSwappingId] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [updatingId, setUpdatingId] = useState(null)
     const navigate = useNavigate()
-    let authToken = localStorage.getItem('Authorization')
-    let setProceed = authToken ? true : false
-
+    const authToken = localStorage.getItem('Authorization')
+    const isLoggedIn = Boolean(authToken)
+    const headers = { headers: { 'Authorization': authToken } }
 
     useEffect(() => {
-        if (setProceed) {
-            getCart()
-            getPreviousOrder()
-        }
-        else {
-            setOpenAlert(true)
-        }
         window.scroll(0, 0)
-
+        if (!isLoggedIn) {
+            setLoading(false)
+            return
+        }
+        axios.get(`${process.env.REACT_APP_GET_CART}`, headers)
+            .then(({ data }) => setCart(data))
+            .catch(() => toast.error('Could not load your cart', { autoClose: 800, theme: 'colored' }))
+            .finally(() => setLoading(false))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    useEffect(() => {
-        if (setProceed) {
-            setTotal(cart.reduce((acc, curr) => (acc + ((curr.productId?.price * curr.quantity) + shippingCoast)), 0))
-        }
-
-    }, [cart])
-
-    const getCart = async () => {
-        if (setProceed) {
-            const { data } = await axios.get(`${process.env.REACT_APP_GET_CART}`,
-                {
-                    headers: {
-                        'Authorization': authToken
-                    }
-                })
-            setCart(data);
-        }
-
-    }
-    const handleClose = () => {
-        setOpenAlert(false);
-        navigate('/')
-    };
-    const handleToLogin = () => {
-        navigate('/login')
-    };
-    const getPreviousOrder = async () => {
-        const { data } = await axios.get(`${process.env.REACT_APP_GET_PREVIOUS_ORDER}`,
-            {
-                headers: {
-                    'Authorization': authToken
-                }
-            })
-        setPreviousOrder(data)
-    }
-
-    const removeFromCart = async (product) => {
-        if (setProceed) {
-            try {
-                const response = await axios.delete(`${process.env.REACT_APP_DELETE_CART}/${product._id}`, {
-                    headers: {
-                        'Authorization': authToken
-                    }
-                })
-                toast.success("Removed From Cart", { autoClose: 500, theme: 'colored' })
-                setCart(cart.filter(c => c.productId._id !== product.productId._id))
-            } catch (error) {
-                toast.error("Something went wrong", { autoClose: 500, theme: 'colored' })
-
-            }
+    const changeQuantity = async (item, quantity) => {
+        try {
+            setUpdatingId(item._id)
+            const { data } = await axios.put(`${process.env.REACT_APP_UPDATE_CART}/${item._id}`, { quantity }, headers)
+            setCart(current => current.map(c => (c._id === item._id ? data : c)))
+        } catch (error) {
+            toast.error(error.response?.data?.msg || 'Could not update quantity', { autoClose: 800, theme: 'colored' })
+        } finally {
+            setUpdatingId(null)
         }
     }
-    const proceedToCheckout = async () => {
-        if (cart.length <= 0) {
-            toast.error("Please add items in cart to proceed", { autoClose: 500, theme: 'colored' })
+
+    const removeItem = async (item, message = 'Removed from cart') => {
+        try {
+            setUpdatingId(item._id)
+            await axios.delete(`${process.env.REACT_APP_DELETE_CART}/${item._id}`, headers)
+            setCart(current => current.filter(c => c._id !== item._id))
+            toast.success(message, { autoClose: 500, theme: 'colored' })
+        } catch (error) {
+            toast.error('Something went wrong', { autoClose: 500, theme: 'colored' })
+        } finally {
+            setUpdatingId(null)
         }
-        else {
-            sessionStorage.setItem('totalAmount', total)
-            navigate('/checkout')
+    }
+
+    const moveToWishlist = async (item) => {
+        try {
+            await addToWishlist(item.productId)
+            await removeItem(item, 'Moved to wishlist')
+        } catch (error) {
+            toast.error(error.message, { autoClose: 700, theme: 'colored' })
         }
+    }
+
+    // Smart Budget: replace a cart item with a cheaper alternative
+    const swapItem = async (item, alternative) => {
+        try {
+            setSwappingId(item._id)
+            await axios.delete(`${process.env.REACT_APP_DELETE_CART}/${item._id}`, headers)
+            await addToCart(alternative._id, item.quantity, authToken, setCart)
+            toast.success(`Swapped and saved ${'₹' + ((item.productId.price - alternative.price) * item.quantity).toLocaleString('en-IN')}`, { autoClose: 900, theme: 'colored' })
+        } catch (error) {
+            toast.error('Could not swap this item', { autoClose: 800, theme: 'colored' })
+        } finally {
+            setSwappingId(null)
+        }
+    }
+
+    if (!isLoggedIn) {
+        return (
+            <EmptyState
+                icon={<AiOutlineLogin />}
+                title='Please login to see your cart'
+                message='Your cart items are saved to your account.'
+                actionLabel='Login'
+                actionTo='/login'
+            />
+        )
+    }
+
+    if (loading) {
+        return <div className='cart-loading'><CircularProgress /></div>
+    }
+
+    const cartItems = cart.filter(item => item.productId)
+    const totals = getCartTotals(cartItems)
+
+    if (cartItems.length === 0) {
+        return (
+            <EmptyState
+                image={EmptyCart}
+                title='Your cart is empty'
+                message='Looks like you have not added anything yet.'
+            />
+        )
     }
 
     return (
-        <>
-            <CssBaseline />
-            <Container fixed maxWidth >
+        <div className='cart'>
+            <Breadcrumbs sx={{ mb: 2, fontSize: 14 }}>
+                <Link to='/'>Home</Link>
+                <Typography fontSize={14} color='text.primary'>Cart</Typography>
+            </Breadcrumbs>
 
-                <Typography variant='h3' sx={{ textAlign: 'center', marginTop: 10, color: '#1976d2', fontWeight: 'bold' }}>Cart</Typography>
-                {
-                    setProceed &&
-                    cart.length <= 0 &&
-                    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <div className="main-card">
-                            <img src={EmptyCart} alt="Empty_cart" className="empty-cart-img" />
-                            <Typography variant='h6' sx={{ textAlign: 'center', color: '#1976d2', fontWeight: 'bold' }}>Your Cart is Empty</Typography>
-                        </div>
-                    </Box>
+            <div className='cart__layout'>
+                <div>
+                <div className='cart__items'>
+                    <div className='cart__header'>
+                        <h1>My Cart <span>({totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'})</span></h1>
+                        <Link to='/orders' className='cart__orders-link'>View my orders</Link>
+                    </div>
+                    {cartItems.map(item => (
+                        <CartCard
+                            key={item._id}
+                            item={item}
+                            updating={updatingId === item._id}
+                            onQuantityChange={changeQuantity}
+                            onRemove={(cartItem) => removeItem(cartItem)}
+                            onMoveToWishlist={moveToWishlist}
+                        />
+                    ))}
+                </div>
+                <SmartSavings cartItems={cartItems} onSwap={swapItem} isOverBudget={isOverBudget} swappingId={swappingId} />
+                </div>
 
-                }
-                <Container sx={{ display: 'flex', flexDirection: "column", mb: 10 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                        {
-                            cart.length > 0 &&
-                            cart.map(product =>
-                                <CartCard product={product} removeFromCart={removeFromCart} key={product._id} />
-
-                            )}
-                    </Box>
-
-                    {
-                        cart.length > 0 &&
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <OrderSummary proceedToCheckout={proceedToCheckout} total={total} shippingCoast={shippingCoast} />
-                        </Box>
-                    }
-
-                </Container>
-            </Container>
-            {setProceed && previousOrder.length > 0 && <Typography variant='h6' sx={{ textAlign: 'center', margin: "5px 0" }}>Previous Orders</Typography>}
-            <Container maxWidth='xl' style={{ marginTop: 10, display: "flex", justifyContent: 'center', flexWrap: "wrap", paddingBottom: 20 }}>
-                {
-                    previousOrder.map(product => (
-                        product.productData.map(prod =>
-                            <ProductCard prod={prod.productId} key={prod._id} showWishlistAction={false} />
-                        )
-                    )
-                    )}
-            </Container>
-            <Dialog
-                open={openAlert}
-                keepMounted
-                onClose={handleClose}
-                TransitionComponent={Transition}
-                aria-describedby="alert-dialog-slide-description"
-            >
-                <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 }, display: 'flex', justifyContent: 'center' }}>
-                    <Typography variant='h5'> Please Login To Proceed</Typography>
-                </DialogContent>
-                <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                    <Button variant='contained' onClick={handleToLogin} endIcon={<AiOutlineLogin />} color='primary'>Login</Button>
-                    <Button variant='contained' color='error' endIcon={<AiFillCloseCircle />} onClick={handleClose}>Close</Button>
-                </DialogActions>
-            </Dialog>
-            <CopyRight sx={{ mt: 8, mb: 10 }} />
-        </>
+                <aside className='cart__summary'>
+                    <BudgetCard />
+                    <OrderSummary totals={totals} onCheckout={() => navigate('/checkout')} />
+                </aside>
+            </div>
+        </div>
     )
 }
 

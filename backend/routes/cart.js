@@ -7,7 +7,7 @@ const authUser = require("../middleware/authUser");
 router.get("/fetchcart", authUser, async (req, res) => {
     try {
         const cart = await Cart.find({ user: req.user.id })
-            .populate("productId", "name price image rating type")
+            .populate("productId", "name price originalPrice image rating type brand category")
             .populate("user", "name email");
         res.send(cart);
     } catch (error) {
@@ -39,11 +39,32 @@ router.post("/addcart", authUser, async (req, res) => {
     }
 });
 
+// change quantity of a cart item (1 to 10)
+router.put("/updatecart/:id", authUser, async (req, res) => {
+    const quantity = Number(req.body.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+        return res.status(400).json({ msg: "Quantity must be between 1 and 10" });
+    }
+    try {
+        const item = await Cart.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.id },
+            { $set: { quantity } },
+            { new: true }
+        ).populate("productId", "name price originalPrice image rating type brand category");
+        if (!item) {
+            return res.status(404).json({ msg: "Cart item not found" });
+        }
+        res.send(item);
+    } catch (error) {
+        res.status(500).send("Internal server error");
+    }
+});
+
 // remove from cart
 router.delete("/deletecart/:id", authUser, async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await Cart.findByIdAndDelete(id)
+        const result = await Cart.findOneAndDelete({ _id: id, user: req.user.id })
         res.send(result);
     } catch (error) {
         res.status(500).send("Internal server error");
