@@ -1,285 +1,290 @@
 import './Productsimilar.css'
-import React, { useEffect, useState, useContext } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import {
-    Box,
-    Button,
-    Container,
-    Tooltip,
-    Typography,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    Chip,
-    Rating,
-    ButtonGroup,
-    Skeleton,
-} from '@mui/material';
-import { MdAddShoppingCart } from 'react-icons/md'
-import { AiFillHeart, AiFillCloseCircle, AiOutlineHeart, AiOutlineLogin, AiOutlineShareAlt } from 'react-icons/ai'
-import { TbDiscount2 } from 'react-icons/tb'
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { ContextFunction } from '../../Context/Context';
-import ProductCard from '../../Components/Card/Product Card/ProductCard';
-import { Transition, getSingleProduct } from '../../Constants/Constant';
-import CopyRight from '../../Components/CopyRight/CopyRight';
-import useWishlist from '../../Hooks/useWishlist';
+import React, { useContext, useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Breadcrumbs, Button, Chip, Dialog, DialogActions, DialogContent, Skeleton, Typography } from '@mui/material'
+import { MdAddShoppingCart, MdLocalShipping, MdAssignmentReturn, MdPayments, MdVerifiedUser } from 'react-icons/md'
+import { AiFillHeart, AiOutlineHeart, AiOutlineShareAlt, AiFillStar, AiOutlineLogin, AiFillCloseCircle } from 'react-icons/ai'
+import { BsLightningChargeFill } from 'react-icons/bs'
+import { MdCompareArrows, MdAccountBalanceWallet } from 'react-icons/md'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import { ContextFunction } from '../../Context/Context'
+import ProductCard from '../../Components/Card/Product Card/ProductCard'
+import { Transition, addToCart, FREE_SHIPPING_ABOVE } from '../../Constants/Constant'
+import useWishlist from '../../Hooks/useWishlist'
+import useCompare from '../../Hooks/useCompare'
+import useBudget from '../../Hooks/useBudget'
+import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../Helpers/price'
+import { typeLabels } from '../../SingleCategory/SingleCategory'
 
+const MAX_QUANTITY = 5
+const SIMILAR_COUNT = 8
 
+// expected delivery date, 4 days from today
+const getDeliveryDate = () => {
+    const date = new Date()
+    date.setDate(date.getDate() + 4)
+    return date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })
+}
 
 const ProductDetail = () => {
-    const { cart, setCart } = useContext(ContextFunction)
-    const {
-        addToWishlist,
-        removeFromWishlist,
-        getWishlistItemByProductId,
-        isInWishlist,
-        wishlistLoading
-    } = useWishlist();
-    const [openAlert, setOpenAlert] = useState(false);
+    const { setCart } = useContext(ContextFunction)
+    const { addToWishlist, removeFromWishlist, getWishlistItemByProductId, isInWishlist, wishlistLoading } = useWishlist()
     const { id, cat } = useParams()
-    const [product, setProduct] = useState([])
-    const [similarProduct, setSimilarProduct] = useState([])
-    const [productQuantity, setProductQuantity] = useState(1)
-    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate()
+    const { isInCompare, toggleCompare, compareProducts } = useCompare()
+    const { hasBudget, remaining } = useBudget()
 
+    const [product, setProduct] = useState(null)
+    const [similarProducts, setSimilarProducts] = useState([])
+    const [quantity, setQuantity] = useState(1)
+    const [loading, setLoading] = useState(true)
+    const [adding, setAdding] = useState(false)
+    const [openAlert, setOpenAlert] = useState(false)
+    const [zoom, setZoom] = useState({ active: false, x: 50, y: 50 })
 
-    let authToken = localStorage.getItem('Authorization')
-    let setProceed = authToken ? true : false
-
+    const authToken = localStorage.getItem('Authorization')
+    const isLoggedIn = Boolean(authToken)
 
     useEffect(() => {
-
-        getSingleProduct(setProduct, id, setLoading)
-        getSimilarProducts()
         window.scroll(0, 0)
-    }, [id])
-    const addToCart = async (product) => {
-        if (setProceed) {
+        setLoading(true)
+        setQuantity(1)
+        const loadProduct = async () => {
             try {
-
-
-                const { data } = await axios.post(`${process.env.REACT_APP_ADD_CART}`, { _id: product._id, quantity: productQuantity }, {
-                    headers: {
-                        'Authorization': authToken
-                    }
-                })
-                setCart(data)
-                setCart([...cart, product])
-                toast.success("Added To Cart", { autoClose: 500, theme: 'colored' })
+                const { data } = await axios.get(`${process.env.REACT_APP_FETCH_PRODUCT}/${id}`)
+                setProduct(data)
             } catch (error) {
-                toast.error(error.response.data.msg, { autoClose: 500, theme: 'colored' })
+                setProduct(null)
+            } finally {
+                setLoading(false)
             }
         }
-        else {
-            setOpenAlert(true);
-        }
-    }
-    const handleWishlist = async (product) => {
-        if (setProceed) {
+        const loadSimilar = async () => {
             try {
-                if (isInWishlist(product._id)) {
-                    const wishlistItem = getWishlistItemByProductId(product._id);
-                    await removeFromWishlist(wishlistItem);
-                    toast.success("Removed From Wishlist", { autoClose: 500, theme: 'colored' });
-                    return;
-                }
-
-                const result = await addToWishlist(product);
-                if (result.duplicate) {
-                    toast.info("Already in Wishlist", { autoClose: 500, theme: 'colored' });
-                } else {
-                    toast.success("Added To Wishlist", { autoClose: 500, theme: 'colored' });
-                }
-            }
-            catch (error) {
-                toast.error(error.message, { autoClose: 700, theme: 'colored' })
+                const { data } = await axios.post(`${process.env.REACT_APP_PRODUCT_TYPE}`, { userType: cat })
+                setSimilarProducts(data.filter(p => p._id !== id).slice(0, SIMILAR_COUNT))
+            } catch (error) {
+                setSimilarProducts([])
             }
         }
-        else {
-            setOpenAlert(true);
-        }
+        loadProduct()
+        loadSimilar()
+    }, [id, cat])
 
-    };
-    const shareProduct = (product) => {
+    const handleAddToCart = async (goToCart = false) => {
+        if (!isLoggedIn) return setOpenAlert(true)
+        try {
+            setAdding(true)
+            await addToCart(product._id, quantity, authToken, setCart)
+            if (goToCart) {
+                navigate('/cart')
+            } else {
+                toast.success('Added to cart', { autoClose: 500, theme: 'colored' })
+            }
+        } catch (error) {
+            const message = error.response?.data?.msg
+            // "Buy Now" on a product already in the cart just opens the cart
+            if (goToCart && message) return navigate('/cart')
+            toast.info(message || 'Could not add to cart', { autoClose: 800, theme: 'colored' })
+        } finally {
+            setAdding(false)
+        }
+    }
 
-        const data = {
-            text: product.name,
-            title: "e-shopit",
-            url: `https://e-shopit.vercel.app/Detail/type/${cat}/${id}`
+    const handleWishlist = async () => {
+        if (!isLoggedIn) return setOpenAlert(true)
+        try {
+            if (isInWishlist(product._id)) {
+                await removeFromWishlist(getWishlistItemByProductId(product._id))
+                toast.success('Removed from wishlist', { autoClose: 500, theme: 'colored' })
+            } else {
+                await addToWishlist(product)
+                toast.success('Added to wishlist', { autoClose: 500, theme: 'colored' })
+            }
+        } catch (error) {
+            toast.error(error.message, { autoClose: 700, theme: 'colored' })
         }
-        if (navigator.canShare && navigator.canShare(data)) {
-            navigator.share(data);
-        }
-        else {
-            toast.error("browser not support", { autoClose: 500, theme: 'colored' })
-        }
+    }
 
-    }
-    const getSimilarProducts = async () => {
-        const { data } = await axios.post(`${process.env.REACT_APP_PRODUCT_TYPE}`, { userType: cat })
-        setSimilarProduct(data)
-    }
-    let data = [];
-    if (cat === 'shoe') {
-        data.push(product?.brand, product?.gender, product?.category)
-    }
-    else if (cat === 'book') {
-        data.push(product.author, product.category)
-    }
-    else if (cat === 'cloths') {
-        data.push(product.category, cat)
-    }
-    else if (cat === 'electronics') {
-        data.push(product.category, cat)
-    }
-    else if (cat === 'jewelry') {
-        data.push(cat)
-    }
-    const increaseQuantity = () => {
-        setProductQuantity((prev) => prev + 1)
-        if (productQuantity >= 5) {
-            setProductQuantity(5)
+    const shareProduct = async () => {
+        const url = window.location.href
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: product.name, text: product.name, url })
+            } else {
+                await navigator.clipboard.writeText(url)
+                toast.success('Link copied', { autoClose: 600, theme: 'colored' })
+            }
+        } catch (error) {
+            // user closed the share sheet
         }
     }
-    const decreaseQuantity = () => {
-        setProductQuantity((prev) => prev - 1)
-        if (productQuantity <= 1) {
-            setProductQuantity(1)
-        }
+
+    // move the zoomed image with the mouse
+    const handleMouseMove = (e) => {
+        const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
+        setZoom({ active: true, x: ((e.clientX - left) / width) * 100, y: ((e.clientY - top) / height) * 100 })
     }
+
+    if (loading) {
+        return (
+            <div className='detail'>
+                <div className='detail__layout'>
+                    <Skeleton variant='rounded' height={460} />
+                    <div>
+                        <Skeleton width='30%' height={28} />
+                        <Skeleton width='80%' height={48} />
+                        <Skeleton width='40%' height={40} />
+                        <Skeleton variant='rounded' height={160} sx={{ mt: 2 }} />
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (!product) {
+        return (
+            <div className='detail' style={{ textAlign: 'center' }}>
+                <Typography variant='h6'>Product not found</Typography>
+                <Button component={Link} to='/products' variant='contained' sx={{ mt: 2 }}>Browse products</Button>
+            </div>
+        )
+    }
+
+    const discount = getDiscountPercent(product)
+    const originalPrice = getOriginalPrice(product)
+    const inWishlist = isInWishlist(product._id)
+    const highlights = [product.brand, product.author, product.category, product.gender].filter(Boolean)
+
     return (
-        <>
-            <Container maxWidth='xl' >
-                <Dialog
-                    open={openAlert}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={() => setOpenAlert(false)}
-                    aria-describedby="alert-dialog-slide-description"
-                >
-                    <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 } }}>
-                        <DialogContentText style={{ textAlign: 'center' }} id="alert-dialog-slide-description">
-                            Please Login To Proceed
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                        <Link to="/login"> <Button variant='contained' endIcon={<AiOutlineLogin />} color='primary'>Login</Button></Link>
-                        <Button variant='contained' color='error'
-                            onClick={() => setOpenAlert(false)} endIcon={<AiFillCloseCircle />}>Close</Button>
-                    </DialogActions>
-                </Dialog>
+        <div className='detail'>
+            <Breadcrumbs sx={{ mb: 2, fontSize: 14 }}>
+                <Link to='/'>Home</Link>
+                <Link to={`/product/type/${cat}`}>{typeLabels[cat] || cat}</Link>
+                <Typography fontSize={14} color='text.primary' noWrap sx={{ maxWidth: 260 }}>{product.name}</Typography>
+            </Breadcrumbs>
 
-                <main className='main-content'>
-                    {loading ? (
-                        <Skeleton variant='rectangular' height={400} />
-                    ) : (
-                        <div className="product-image">
-                            <div className='detail-img-box'  >
-                                <img alt={product.name} src={product.image} className='detail-img' />
-                                <br />
-                            </div>
+            <div className='detail__layout'>
+                <div
+                    className='detail__image-box'
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={() => setZoom({ ...zoom, active: false })}
+                >
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className='detail__image'
+                        style={{
+                            transform: zoom.active ? 'scale(1.8)' : 'scale(1)',
+                            transformOrigin: `${zoom.x}% ${zoom.y}%`,
+                        }}
+                    />
+                    {discount > 0 && <span className='detail__badge'>{discount}% OFF</span>}
+                    <span className='detail__zoom-hint'>Hover to zoom</span>
+                </div>
+
+                <div className='detail__info'>
+                    <p className='detail__brand'>{product.brand || product.author}</p>
+                    <h1 className='detail__name'>{product.name}</h1>
+
+                    {product.rating > 0 && (
+                        <span className='detail__rating'>{product.rating.toFixed(1)} <AiFillStar /></span>
+                    )}
+
+                    <div className='detail__price-row'>
+                        <span className='detail__price'>{formatPrice(product.price)}</span>
+                        {discount > 0 && <span className='detail__mrp'>MRP {formatPrice(originalPrice)}</span>}
+                        {discount > 0 && <span className='detail__off'>({discount}% off)</span>}
+                    </div>
+                    <p className='detail__tax'>Inclusive of all taxes</p>
+
+                    {hasBudget && (
+                        <p className={`detail__budget ${product.price * quantity > remaining ? 'detail__budget--over' : ''}`}>
+                            <MdAccountBalanceWallet />
+                            {product.price * quantity <= remaining
+                                ? <>Fits your budget — {formatPrice(remaining - product.price * quantity)} left after this</>
+                                : remaining <= 0
+                                    ? <>Your cart is already over your budget — check Smart Savings in your cart</>
+                                    : <>{formatPrice(product.price * quantity - remaining)} over your remaining budget</>}
+                        </p>
+                    )}
+
+                    <p className='detail__description'>{product.description}</p>
+
+                    {highlights.length > 0 && (
+                        <div className='detail__chips'>
+                            {highlights.map(item => <Chip key={item} label={item} variant='outlined' size='small' />)}
                         </div>
                     )}
-                    {loading ? (
-                        <section style={{ display: 'flex', flexWrap: "wrap", width: "100%", justifyContent: "space-around", alignItems: 'center' }}>
-                            <Skeleton variant='rectangular' height={200} width="200px" />
-                            <Skeleton variant='text' height={400} width={700} />
 
-                        </section>
+                    <div className='detail__quantity'>
+                        <span>Quantity</span>
+                        <div className='qty'>
+                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}>−</button>
+                            <span>{quantity}</span>
+                            <button onClick={() => setQuantity(q => Math.min(MAX_QUANTITY, q + 1))} disabled={quantity >= MAX_QUANTITY}>+</button>
+                        </div>
+                    </div>
 
-                    ) : (
-                        <section className='product-details'>
-                            <Typography variant='h4'>{product.name}</Typography>
+                    <div className='detail__buttons'>
+                        <Button variant='outlined' size='large' startIcon={<MdAddShoppingCart />} disabled={adding} onClick={() => handleAddToCart(false)}>
+                            Add to Cart
+                        </Button>
+                        <Button variant='contained' size='large' color='secondary' startIcon={<BsLightningChargeFill />} disabled={adding} onClick={() => handleAddToCart(true)}>
+                            Buy Now
+                        </Button>
+                        <Button variant='outlined' size='large' color={inWishlist ? 'error' : 'inherit'} disabled={wishlistLoading} onClick={handleWishlist} aria-label='Wishlist'>
+                            {inWishlist ? <AiFillHeart size={22} /> : <AiOutlineHeart size={22} />}
+                        </Button>
+                        <Button variant='outlined' size='large' color='inherit' onClick={shareProduct} aria-label='Share'>
+                            <AiOutlineShareAlt size={22} />
+                        </Button>
+                    </div>
 
-                            <Typography >
-                                {product.description}
-                            </Typography>
-                            <Typography >
-                                <div className="chip">
-                                    {
-                                        data.map((item, index) => (
-                                            <Chip label={item} key={index} variant="outlined" />
-                                        ))
-                                    }
-                                </div>
-                            </Typography>
-                            <Chip
-                                label={product.price > 1000 ? "Upto 9% off" : "Upto 38% off"}
-                                variant="outlined"
-                                sx={{ background: '#1976d2', color: 'white', width: '150px', fontWeight: 'bold' }}
-                                avatar={<TbDiscount2 color='white' />}
+                    <div className='detail__compare'>
+                        <Button size='small' startIcon={<MdCompareArrows />} variant={isInCompare(product._id) ? 'contained' : 'text'} onClick={() => toggleCompare(product)}>
+                            {isInCompare(product._id) ? 'Added to compare' : 'Add to compare'}
+                        </Button>
+                        {similarProducts.length > 0 && (
+                            <Button size='small' onClick={() => { compareProducts([product, ...[...similarProducts].sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price))]); navigate('/compare') }}>
+                                Compare price with similar products →
+                            </Button>
+                        )}
+                    </div>
 
+                    <div className='detail__delivery'>
+                        <div><MdLocalShipping /> <span>Delivery by <b>{getDeliveryDate()}</b>{product.price * quantity >= FREE_SHIPPING_ABOVE ? ' • Free delivery' : ` • Free above ${formatPrice(FREE_SHIPPING_ABOVE)}`}</span></div>
+                        <div><MdAssignmentReturn /> <span>Easy 7-day returns and exchange</span></div>
+                        <div><MdPayments /> <span>Cash on Delivery available</span></div>
+                        <div><MdVerifiedUser /> <span>100% original product</span></div>
+                    </div>
+                </div>
+            </div>
 
-                            />
-                            <div style={{ display: 'flex', gap: 20 }}>
-                                <Typography variant="h6" color="red"><s> ₹{product.price > 1000 ? product.price + 1000 : product.price + 300}</s> </Typography>
-                                <Typography variant="h6" color="primary">
-                                    ₹{product.price}
-                                </Typography>
+            {similarProducts.length > 0 && (
+                <section className='detail__similar'>
+                    <h2>Similar Products</h2>
+                    <div className='detail__similar-row'>
+                        {similarProducts.map(prod => (
+                            <div className='detail__similar-item' key={prod._id}>
+                                <ProductCard prod={prod} />
                             </div>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    // background: 'red',
-                                    '& > *': {
-                                        m: 1,
-                                    },
-                                }}
-                            >
-                                <ButtonGroup variant="outlined" aria-label="outlined button group">
-                                    <Button onClick={increaseQuantity}>+</Button>
-                                    <Button>{productQuantity}</Button>
-                                    <Button onClick={decreaseQuantity}>-</Button>
-                                </ButtonGroup>
-                            </Box>
-                            <Rating name="read-only" value={Math.round(product.rating)} readOnly precision={0.5} />
-                            <div style={{ display: 'flex' }} >
-                                <Tooltip title='Add To Cart'>
-                                    <Button variant='contained' className='all-btn' startIcon={<MdAddShoppingCart />} onClick={(() => addToCart(product))}>Buy</Button>
-                                </Tooltip>
-                                <Tooltip title={isInWishlist(product._id) ? 'Remove From Wishlist' : 'Add To Wishlist'}>
-                                    <Button
-                                        style={{ marginLeft: 10, }}
-                                        size='small'
-                                        variant='contained'
-                                        color={isInWishlist(product._id) ? 'error' : 'primary'}
-                                        className='all-btn'
-                                        disabled={wishlistLoading}
-                                        onClick={(() => handleWishlist(product))}
-                                    >
-                                        {isInWishlist(product._id) ? <AiFillHeart fontSize={21} /> : <AiOutlineHeart fontSize={21} />}
-                                    </Button>
+                        ))}
+                    </div>
+                </section>
+            )}
 
-                                </Tooltip>
-                                <Tooltip title='Share'>
-                                    <Button style={{ marginLeft: 10 }} variant='contained' className='all-btn' startIcon={<AiOutlineShareAlt />} onClick={() => shareProduct(product)}>Share</Button>
-                                </Tooltip>
-
-                            </div>
-                        </section>
-                    )}
-                </main>
-
-
-                <Typography sx={{ marginTop: 10, marginBottom: 5, fontWeight: 'bold', textAlign: 'center' }}>Similar Products</Typography>
-                <Box>
-                    <Box className='similarProduct' sx={{ display: 'flex', overflowX: 'auto', marginBottom: 10 }}>
-                        {
-                            similarProduct.filter(prod => prod._id !== id).map(prod => (
-                                <ProductCard prod={prod} key={prod._id} />
-                            ))
-                        }
-                    </Box>
-                </Box>
-
-            </Container >
-            <CopyRight   sx={{ mt: 8, mb: 10 }} />
-
-        </>
+            <Dialog open={openAlert} TransitionComponent={Transition} keepMounted onClose={() => setOpenAlert(false)}>
+                <DialogContent sx={{ width: { xs: 280, md: 350 }, textAlign: 'center' }}>
+                    <Typography variant='h6'>Please login to continue</Typography>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'space-evenly', pb: 2 }}>
+                    <Button component={Link} to='/login' variant='contained' endIcon={<AiOutlineLogin />}>Login</Button>
+                    <Button variant='outlined' color='error' endIcon={<AiFillCloseCircle />} onClick={() => setOpenAlert(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
+        </div>
     )
 }
 

@@ -1,0 +1,121 @@
+.search {
+    position: relative;
+    width: 100%;
+}
+
+.search__form {
+    display: flex;
+    align-items: center;
+    height: 42px;
+    border: 1px solid #d6dbe3;
+    border-radius: 10px;
+    background: #f5f6f8;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.search__form:focus-within {
+    border-color: #1976d2;
+    background: #fff;
+}
+
+.search__input {
+    flex: 1;
+    height: 100%;
+    padding: 0 14px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    color: inherit;
+}
+
+.search__button {
+    width: 48px;
+    height: 100%;
+    border: none;
+    background: #1976d2;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.search__results {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    max-height: 420px;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+}
+
+.search__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    color: #1f2937;
+}
+
+.search__item:hover {
+    background: #f5f6f8;
+}
+
+.search__item img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.search__item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.search__item-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1976d2;
+}
+
+.search__empty {
+    padding: 18px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.search__all {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-top: 1px solid #eef0f3;
+    background: none;
+    color: #1976d2;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+body.dark-mode .search__form {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .search__results {
+    background: #1e293b;
+}
+
+body.dark-mode .search__item {
+    color: #e2e8f0;
+}
+
+body.dark-mode .search__item:hover {
+    background: #334155;
+}

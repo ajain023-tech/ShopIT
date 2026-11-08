@@ -1,222 +1,109 @@
-import React, { useEffect, useContext } from 'react'
-import axios from 'axios'
-import { Container, Typography, Box, Button } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
-import { ContextFunction } from '../../Context/Context'
-import CategoryCard from '../../Components/Category_Card/CategoryCard'
-import BannerData from '../../Helpers/HomePageBanner'
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { MdLocalShipping, MdAssignmentReturn, MdPayments, MdSupportAgent } from 'react-icons/md'
 import Carousel from '../../Components/Carousel/Carousel'
-import SearchBar from '../../Components/SearchBar/SearchBar'
-import CopyRight from '../../Components/CopyRight/CopyRight'
+import CategoryCard from '../../Components/Category_Card/CategoryCard'
+import ProductCard from '../../Components/Card/Product Card/ProductCard'
+import Loading from '../../Components/loading/Loading'
+import categories from '../../Helpers/HomePageBanner'
+import { getAllProducts } from '../../Constants/Constant'
+import { getDiscountPercent } from '../../Helpers/price'
+import { Books, Jewelry } from '../../Assets/Images/Image'
 import './HomePage.css'
 
-/* ─── Feature card data ─────────────────────────────────────── */
-const features = [
-  {
-    icon: '🚀',
-    title: 'Free Shipping',
-    desc: 'Enjoy free shipping on all orders over $50. Fast, reliable delivery straight to your doorstep — no hidden fees, ever.',
-  },
-  {
-    icon: '🔐',
-    title: 'Secure Payment',
-    desc: 'Shop with confidence using 256-bit SSL encryption. Your payment details are always protected and never stored.',
-  },
-  {
-    icon: '↩️',
-    title: 'Easy Returns',
-    desc: 'Not happy? Return anything within 30 days — no questions asked. We make returns simple, fast, and completely hassle-free.',
-  },
+const PRODUCTS_PER_ROW = 8
+
+const promises = [
+  { icon: <MdLocalShipping />, title: 'Free Delivery', text: 'On orders above ₹999' },
+  { icon: <MdAssignmentReturn />, title: 'Easy Returns', text: '7-day return policy' },
+  { icon: <MdPayments />, title: 'Cash on Delivery', text: 'Pay when you receive' },
+  { icon: <MdSupportAgent />, title: '24x7 Support', text: 'We are here to help' },
 ]
 
-/* ─── Floating emoji data ───────────────────────────────────── */
-const floatingIcons = ['👟', '👗', '💻', '📚', '💍', '🎒', '⌚']
+// heading of a product row with a "View all" link
+const SectionHeader = ({ title, subtitle, to }) => (
+  <div className='section-header'>
+    <div>
+      <h2 className='section-title'>{title}</h2>
+      {subtitle && <p className='section-subtitle'>{subtitle}</p>}
+    </div>
+    {to && <Link to={to} className='section-link'>View all →</Link>}
+  </div>
+)
 
-/* ═══════════════════════════════════════════════════════════════
-   HOMEPAGE COMPONENT
-═══════════════════════════════════════════════════════════════ */
+const ProductRow = ({ products, loading }) => (
+  <div className='product-grid'>
+    {loading
+      ? Array.from({ length: 4 }).map((_, i) => <Loading key={i} />)
+      : products.map(product => <ProductCard prod={product} key={product._id} />)}
+  </div>
+)
+
 const HomePage = () => {
-  const { setCart } = useContext(ContextFunction)
-  const navigate = useNavigate()
-  const authToken = localStorage.getItem('Authorization')
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getCart()
     window.scroll(0, 0)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAllProducts((data) => {
+      setProducts(data || [])
+      setLoading(false)
+    })
   }, [])
 
-  const getCart = async () => {
-    if (authToken !== null) {
-      const { data } = await axios.get(`${process.env.REACT_APP_GET_CART}`, {
-        headers: { Authorization: authToken },
-      })
-      setCart(data)
-    }
-  }
+  const trending = [...products].sort((a, b) => b.rating - a.rating).slice(0, PRODUCTS_PER_ROW)
+  const bestDeals = [...products].sort((a, b) => getDiscountPercent(b) - getDiscountPercent(a)).slice(0, PRODUCTS_PER_ROW)
 
   return (
-    <>
-      {/* ══════════════════════════════════════════════
-          1. HERO SECTION
-      ══════════════════════════════════════════════ */}
-      <section className="hero-section">
-        {/* Glowing background orbs */}
-        <div className="hero-orb hero-orb-1" />
-        <div className="hero-orb hero-orb-2" />
-        <div className="hero-orb hero-orb-3" />
+    <div className='home'>
+      <Carousel />
 
-        {/* Test mode badge */}
-        <div className="test-mode-badge">
-          <span className="test-mode-dot" />
-          Test Mode
-        </div>
-
-        {/* Floating product emoji icons */}
-        <div className="floating-icons" aria-hidden="true">
-          {floatingIcons.map((emoji, i) => (
-            <span key={i} className="float-icon">
-              {emoji}
-            </span>
-          ))}
-        </div>
-
-        {/* Hero content */}
-        <div className="hero-content">
-          {/* Eyebrow label */}
-          <div className="hero-eyebrow">
-            ✨ &nbsp; New Season, New Deals
-          </div>
-
-          {/* Main headline */}
-          <Typography component="h1" className="hero-headline">
-            Shop The{' '}
-            <span className="hero-headline-gradient">Best,</span>
-            <br />
-            Pay Less
-          </Typography>
-
-          {/* Subtitle */}
-          <Typography className="hero-subtitle">
-            Discover <strong>118+</strong> premium products across{' '}
-            <strong>8 categories</strong> — curated for quality, priced for everyone.
-          </Typography>
-
-          {/* CTA Buttons */}
-          <div className="hero-cta-group">
-            <Button
-              variant="contained"
-              size="large"
-              className="btn-primary"
-              onClick={() => navigate('/products')}
-            >
-              Shop Now &nbsp;→
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              className="btn-secondary"
-              onClick={() => {
-                document.getElementById('categories-section')?.scrollIntoView({
-                  behavior: 'smooth',
-                })
-              }}
-            >
-              Browse Categories
-            </Button>
-          </div>
-
-          {/* Stats bar */}
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <div className="hero-stat-number">118+</div>
-              <div className="hero-stat-label">Products</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat">
-              <div className="hero-stat-number">8</div>
-              <div className="hero-stat-label">Categories</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat">
-              <div className="hero-stat-number">4.9★</div>
-              <div className="hero-stat-label">Avg Rating</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat">
-              <div className="hero-stat-number">24/7</div>
-              <div className="hero-stat-label">Support</div>
+      <section className='promises'>
+        {promises.map(item => (
+          <div className='promise' key={item.title}>
+            <span className='promise__icon'>{item.icon}</span>
+            <div>
+              <p className='promise__title'>{item.title}</p>
+              <p className='promise__text'>{item.text}</p>
             </div>
           </div>
-        </div>
+        ))}
+      </section>
 
-        {/* Scroll indicator */}
-        <div className="hero-scroll-indicator">
-          <span>Scroll</span>
-          <div className="scroll-arrow" />
+      <section className='home-section'>
+        <SectionHeader title='Shop by Category' subtitle='Find exactly what you are looking for' />
+        <div className='category-grid'>
+          {categories.map(category => <CategoryCard data={category} key={category.name} />)}
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          2. CAROUSEL (existing)
-      ══════════════════════════════════════════════ */}
-      <Box sx={{ background: '#fff', pt: 1, pb: 1 }}>
-        <Container maxWidth="xl" sx={{ p: 0 }}>
-          <Box padding={1}>
-            <Carousel />
-          </Box>
-        </Container>
-      </Box>
-
-      {/* ══════════════════════════════════════════════
-          3. SEARCH BAR (existing)
-      ══════════════════════════════════════════════ */}
-      <section className="search-section">
-        <Typography className="search-section-title">
-          Find What You Love
-        </Typography>
-        <Typography className="search-section-sub">
-          Search across our entire catalogue instantly
-        </Typography>
-        <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center' }}>
-          <SearchBar />
-        </Container>
+      <section className='home-section'>
+        <SectionHeader title='Trending Now' subtitle='Top rated by our customers' to='/products?sort=rating' />
+        <ProductRow products={trending} loading={loading} />
       </section>
 
-
-
-      {/* ══════════════════════════════════════════════
-          5. CATEGORIES SECTION (existing BannerData)
-      ══════════════════════════════════════════════ */}
-      <section id="categories-section" className="categories-section">
-        <Typography className="categories-title">
-          Shop by Category
-        </Typography>
-        <Typography className="categories-subtitle">
-          Hand-picked collections for every style and need
-        </Typography>
-
-        <Container
-          maxWidth="xl"
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            flexGrow: 1,
-            flexWrap: 'wrap',
-            gap: '20px',
-          }}
-        >
-          {BannerData.map((data) => (
-            <CategoryCard data={data} key={data.img} />
-          ))}
-        </Container>
+      <section className='home-section promo-grid'>
+        <Link to='/product/type/book' className='promo' style={{ backgroundImage: `url(${Books})` }}>
+          <div className='promo__content'>
+            <span className='promo__tag'>Bestsellers</span>
+            <h3>Books for every reader</h3>
+            <p>Sci-fi, mystery, business and cookbooks</p>
+          </div>
+        </Link>
+        <Link to='/product/type/jewelry' className='promo' style={{ backgroundImage: `url(${Jewelry})` }}>
+          <div className='promo__content'>
+            <span className='promo__tag'>New Arrivals</span>
+            <h3>Jewellery that shines</h3>
+            <p>Rings, necklaces, earrings and bracelets</p>
+          </div>
+        </Link>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          6. COPYRIGHT (existing)
-      ══════════════════════════════════════════════ */}
-      <CopyRight sx={{ mt: 8, mb: 10 }} />
-    </>
+      <section className='home-section'>
+        <SectionHeader title='Best Deals' subtitle='Biggest discounts right now' to='/products?sort=discount' />
+        <ProductRow products={bestDeals} loading={loading} />
+      </section>
+    </div>
   )
 }
 

@@ -1,153 +1,302 @@
 import './singlecategory.css'
-import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import axios from 'axios'
-import { Container } from '@mui/system'
-import { Box, Button, MenuItem, FormControl, Select, Pagination } from '@mui/material'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
+import {
+    Box, Breadcrumbs, Button, Checkbox, Drawer, FormControl, FormControlLabel, MenuItem,
+    Pagination, Radio, RadioGroup, Select, Slider, Typography
+} from '@mui/material'
+import { BiFilterAlt } from 'react-icons/bi'
+import { AiOutlineSearch } from 'react-icons/ai'
 import Loading from '../Components/loading/Loading'
-import { BiFilterAlt } from 'react-icons/bi';
 import ProductCard from '../Components/Card/Product Card/ProductCard'
-import CopyRight from '../Components/CopyRight/CopyRight'
+import EmptyState from '../Components/EmptyState/EmptyState'
+import { getAllProducts } from '../Constants/Constant'
+import useBudget from '../Hooks/useBudget'
+import { formatPrice, getDiscountPercent } from '../Helpers/price'
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 12
+const MAX_BRANDS = 10
 
+export const typeLabels = {
+    cloths: 'Clothing',
+    shoe: 'Shoes',
+    electronics: 'Electronics',
+    book: 'Books',
+    jewelry: 'Jewellery',
+}
+
+const sortOptions = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'priceLow', label: 'Price: Low to High' },
+    { value: 'priceHigh', label: 'Price: High to Low' },
+    { value: 'rating', label: 'Customer Rating' },
+    { value: 'discount', label: 'Discount' },
+]
+
+const sortProducts = (products, sort) => {
+    const list = [...products]
+    if (sort === 'priceLow') return list.sort((a, b) => a.price - b.price)
+    if (sort === 'priceHigh') return list.sort((a, b) => b.price - a.price)
+    if (sort === 'rating') return list.sort((a, b) => b.rating - a.rating)
+    if (sort === 'discount') return list.sort((a, b) => getDiscountPercent(b) - getDiscountPercent(a))
+    return list
+}
+
+const formatLabel = (text) =>
+    ['ssd', 'hdd'].includes(text) ? text.toUpperCase() : text.charAt(0).toUpperCase() + text.slice(1)
+
+const matchesSearch = (product, term) =>
+    ['name', 'brand', 'type', 'category', 'author', 'gender'].some(field =>
+        product[field] && product[field].toLowerCase().includes(term))
+
+// list of products with filters; used for /products, /products?search=... and /product/type/:cat
 const SingleCategory = () => {
-
-    const [productData, setProductData] = useState([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [filterOption, setFilterOption] = useState('All')
-    const [title, setTitle] = useState('All')
-    const [currentPage, setCurrentPage] = useState(1)
     const { cat } = useParams()
+    const [searchParams] = useSearchParams()
+    const searchTerm = (searchParams.get('search') || '').trim()
+
+    const [allProducts, setAllProducts] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [sort, setSort] = useState(searchParams.get('sort') || 'relevance')
+    const [selectedTypes, setSelectedTypes] = useState([])
+    const [selectedSubCategories, setSelectedSubCategories] = useState([])
+    const [selectedBrands, setSelectedBrands] = useState([])
+    const [priceRange, setPriceRange] = useState(null)
+    const [minRating, setMinRating] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [filtersOpen, setFiltersOpen] = useState(false)
+    const [withinBudget, setWithinBudget] = useState(false)
+    const { hasBudget, remaining } = useBudget()
+    const budgetLeft = Math.max(0, remaining)
 
     useEffect(() => {
-        getCategoryProduct()
-        window.scroll(0, 0)
+        getAllProducts((data) => {
+            setAllProducts(data || [])
+            setIsLoading(false)
+        })
     }, [])
 
-    const getCategoryProduct = async () => {
-        try {
-            setIsLoading(true)
-            const { data } = await axios.post(`${process.env.REACT_APP_PRODUCT_TYPE}`, { userType: cat })
-            setIsLoading(false)
-            setProductData(data)
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const productFilter = []
-
-    if (cat === 'book') {
-        productFilter.push('All', 'Scifi', 'Business', 'Mystery', 'Cookbooks', 'Accessories', 'Price Low To High', 'Price High To Low', 'High Rated', 'Low Rated')
-    }
-    else if (cat === 'cloths') {
-        productFilter.push('All', 'Men', 'Women', 'Price Low To High', 'Price High To Low', 'High Rated', 'Low Rated')
-    }
-    else if (cat === 'shoe') {
-        productFilter.push('All', 'Running', 'Football', 'Formal', 'Casual', 'Price Low To High', 'Price High To Low', 'High Rated', 'Low Rated')
-    }
-    else if (cat === 'electronics') {
-        productFilter.push('All', 'Monitor', 'SSD', 'HDD', 'Price Low To High', 'Price High To Low', 'High Rated', 'Low Rated')
-
-    }
-    else if (cat === 'jewelry') {
-        productFilter.push('All')
-
-    }
-
-    const handleChange = (e) => {
-        setFilterOption(e.target.value.split(" ").join("").toLowerCase())
-        setTitle(e.target.value)
-        setCurrentPage(1) // Reset to page 1 when filter changes
-    }
-    // pricelowtohigh 
-    // pricehightolow
-    // highrated
-    // lowrated
-  
-    const getData = async () => {
-        setIsLoading(true)
-        const filter = filterOption.toLowerCase()
-        const { data } = await axios.post(`${process.env.REACT_APP_PRODUCT_TYPE_CATEGORY_}`, { userType: cat, userCategory: filter })
-        setProductData(data)
-        setIsLoading(false)
-    }
+    // start fresh when the category or search changes
     useEffect(() => {
-        getData()
-    }, [filterOption])
+        window.scroll(0, 0)
+        setSelectedTypes([])
+        setSelectedSubCategories([])
+        setSelectedBrands([])
+        setPriceRange(null)
+        setMinRating(0)
+        setCurrentPage(1)
+        setSort(searchParams.get('sort') || 'relevance')
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cat, searchTerm])
 
-    // Pagination: slice the visible products for the current page
-    const totalPages = Math.ceil(productData.length / PRODUCTS_PER_PAGE)
-    const paginatedProducts = productData.slice(
-        (currentPage - 1) * PRODUCTS_PER_PAGE,
-        currentPage * PRODUCTS_PER_PAGE
-    )
+    // products of this page before the sidebar filters
+    const baseProducts = useMemo(() => {
+        let list = cat ? allProducts.filter(p => p.type === cat) : allProducts
+        if (searchTerm) list = list.filter(p => matchesSearch(p, searchTerm.toLowerCase()))
+        return list
+    }, [allProducts, cat, searchTerm])
+
+    const priceLimits = useMemo(() => {
+        if (baseProducts.length === 0) return [0, 0]
+        const prices = baseProducts.map(p => p.price)
+        return [Math.min(...prices), Math.max(...prices)]
+    }, [baseProducts])
+
+    const activePrice = priceRange || priceLimits
+    const types = [...new Set(baseProducts.map(p => p.type))]
+    const subCategories = [...new Set(baseProducts.map(p => p.category).filter(Boolean))]
+    const brandCounts = baseProducts.reduce((acc, p) => {
+        const brand = p.brand || p.author
+        if (brand) acc[brand] = (acc[brand] || 0) + 1
+        return acc
+    }, {})
+    const brands = Object.keys(brandCounts).sort((a, b) => brandCounts[b] - brandCounts[a]).slice(0, MAX_BRANDS)
+
+    const filteredProducts = useMemo(() => {
+        const list = baseProducts.filter(p =>
+            (selectedTypes.length === 0 || selectedTypes.includes(p.type)) &&
+            (selectedSubCategories.length === 0 || selectedSubCategories.includes(p.category)) &&
+            (selectedBrands.length === 0 || selectedBrands.includes(p.brand || p.author)) &&
+            p.price >= activePrice[0] && p.price <= activePrice[1] &&
+            (p.rating || 0) >= minRating &&
+            (!withinBudget || !hasBudget || p.price <= budgetLeft)
+        )
+        return sortProducts(list, sort)
+    }, [baseProducts, selectedTypes, selectedSubCategories, selectedBrands, activePrice, minRating, sort, withinBudget, hasBudget, budgetLeft])
+
+    const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
+    const pageProducts = filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE)
+
+    const toggle = (list, setList, value) => {
+        setList(list.includes(value) ? list.filter(v => v !== value) : [...list, value])
+        setCurrentPage(1)
+    }
+
+    const clearFilters = () => {
+        setSelectedTypes([])
+        setSelectedSubCategories([])
+        setSelectedBrands([])
+        setPriceRange(null)
+        setMinRating(0)
+        setWithinBudget(false)
+        setCurrentPage(1)
+    }
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value)
         window.scroll(0, 0)
     }
 
-    const loading = isLoading ?
-        (
-            <Container maxWidth='xl' style={{ marginTop: 10, display: "flex", justifyContent: "center", flexWrap: "wrap", paddingLeft: 10, paddingBottom: 20 }}>
-                <Loading /><Loading /><Loading /><Loading />
-                <Loading /><Loading /><Loading /><Loading />
-            </Container >
-        )
-        : ""
-    return (
-        <>
-            <Container maxWidth='xl' style={{ marginTop: 90, display: 'flex', justifyContent: "center", flexDirection: "column" }}>
-                < Box sx={{ minWidth: 140 }}>
-                    <FormControl sx={{ width: 140 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, width: "80vw" }}>
-                            <Button endIcon={<BiFilterAlt />}>Filters</Button>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={title}
-                                sx={{ width: 200 }}
-                                onChange={(e) => handleChange(e)}
-                            >
-                                {productFilter.map(prod => (
-                                    <MenuItem key={prod} value={prod}>{prod}</MenuItem>
-                                ))}
-                            </Select>
-                        </Box>
-                    </FormControl>
-                </Box>
-                {loading}
-                <Container maxWidth='xl' style={{ marginTop: 10, display: "flex", justifyContent: 'center', flexWrap: "wrap", paddingBottom: 20, marginBottom: 10, width: '100%' }}>
-                    {paginatedProducts.map(prod => (
-                        <ProductCard prod={prod} key={prod._id} />
-                    ))}
-                </Container>
+    const title = searchTerm
+        ? `Results for "${searchTerm}"`
+        : cat ? (typeLabels[cat] || formatLabel(cat)) : 'All Products'
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '40px' }}>
-                        <Pagination
-                            count={totalPages}
-                            page={currentPage}
-                            onChange={handlePageChange}
-                            color="primary"
-                            shape="rounded"
-                            size="large"
-                            showFirstButton
-                            showLastButton
+    const filterPanel = (
+        <div className='filters'>
+            <div className='filters__header'>
+                <Typography fontWeight={700}>Filters</Typography>
+                <Button size='small' onClick={clearFilters}>Clear all</Button>
+            </div>
+
+            {hasBudget && (
+                <div className='filters__group'>
+                    <p className='filters__title'>Smart Budget</p>
+                    <FormControlLabel
+                        label={`Within my budget (${formatPrice(budgetLeft)} left)`}
+                        control={<Checkbox size='small' checked={withinBudget} onChange={() => { setWithinBudget(!withinBudget); setCurrentPage(1) }} />}
+                    />
+                </div>
+            )}
+
+            {!cat && types.length > 1 && (
+                <div className='filters__group'>
+                    <p className='filters__title'>Category</p>
+                    {types.map(type => (
+                        <FormControlLabel key={type} label={typeLabels[type] || formatLabel(type)}
+                            control={<Checkbox size='small' checked={selectedTypes.includes(type)} onChange={() => toggle(selectedTypes, setSelectedTypes, type)} />} />
+                    ))}
+                </div>
+            )}
+
+            {cat && subCategories.length > 1 && (
+                <div className='filters__group'>
+                    <p className='filters__title'>Type</p>
+                    {subCategories.map(sub => (
+                        <FormControlLabel key={sub} label={formatLabel(sub)}
+                            control={<Checkbox size='small' checked={selectedSubCategories.includes(sub)} onChange={() => toggle(selectedSubCategories, setSelectedSubCategories, sub)} />} />
+                    ))}
+                </div>
+            )}
+
+            {priceLimits[1] > priceLimits[0] && (
+                <div className='filters__group'>
+                    <p className='filters__title'>Price</p>
+                    <Box sx={{ px: 1 }}>
+                        <Slider
+                            value={activePrice}
+                            min={priceLimits[0]}
+                            max={priceLimits[1]}
+                            step={50}
+                            onChange={(e, value) => { setPriceRange(value); setCurrentPage(1) }}
+                            valueLabelDisplay='auto'
+                            valueLabelFormat={formatPrice}
                         />
                     </Box>
-                )}
-            </Container >
-            <CopyRight sx={{ mt: 8, mb: 10 }} />
-        </>
+                    <div className='filters__price'>
+                        <span>{formatPrice(activePrice[0])}</span>
+                        <span>{formatPrice(activePrice[1])}</span>
+                    </div>
+                </div>
+            )}
+
+            {brands.length > 1 && (
+                <div className='filters__group'>
+                    <p className='filters__title'>{cat === 'book' ? 'Author' : 'Brand'}</p>
+                    {brands.map(brand => (
+                        <FormControlLabel key={brand} label={`${brand} (${brandCounts[brand]})`}
+                            control={<Checkbox size='small' checked={selectedBrands.includes(brand)} onChange={() => toggle(selectedBrands, setSelectedBrands, brand)} />} />
+                    ))}
+                </div>
+            )}
+
+            <div className='filters__group'>
+                <p className='filters__title'>Customer Rating</p>
+                <RadioGroup value={minRating} onChange={(e) => { setMinRating(Number(e.target.value)); setCurrentPage(1) }}>
+                    <FormControlLabel value={4} control={<Radio size='small' />} label='4★ & above' />
+                    <FormControlLabel value={3} control={<Radio size='small' />} label='3★ & above' />
+                    <FormControlLabel value={0} control={<Radio size='small' />} label='Any rating' />
+                </RadioGroup>
+            </div>
+        </div>
+    )
+
+    return (
+        <div className='listing'>
+            <Breadcrumbs sx={{ mb: 1, fontSize: 14 }}>
+                <Link to='/'>Home</Link>
+                {cat || searchTerm ? <Link to='/products'>Products</Link> : <Typography fontSize={14} color='text.primary'>Products</Typography>}
+                {(cat || searchTerm) && <Typography fontSize={14} color='text.primary'>{searchTerm ? 'Search' : title}</Typography>}
+            </Breadcrumbs>
+
+            <div className='listing__layout'>
+                <aside className='listing__sidebar'>{filterPanel}</aside>
+
+                <main className='listing__main'>
+                    <div className='listing__toolbar'>
+                        <div>
+                            <h1 className='listing__title'>{title}</h1>
+                            {!isLoading && <p className='listing__count'>{filteredProducts.length} products</p>}
+                        </div>
+                        <div className='listing__actions'>
+                            <Button className='listing__filter-btn' variant='outlined' startIcon={<BiFilterAlt />} onClick={() => setFiltersOpen(true)}>
+                                Filters
+                            </Button>
+                            <FormControl size='small'>
+                                <Select value={sort} onChange={(e) => { setSort(e.target.value); setCurrentPage(1) }} sx={{ minWidth: 190, bgcolor: 'background.paper' }}>
+                                    {sortOptions.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>Sort: {option.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </div>
+                    </div>
+
+                    {isLoading ? (
+                        <div className='listing__grid'>
+                            {Array.from({ length: 8 }).map((_, i) => <Loading key={i} />)}
+                        </div>
+                    ) : filteredProducts.length === 0 ? (
+                        <EmptyState
+                            icon={<AiOutlineSearch />}
+                            title='No products found'
+                            message={baseProducts.length === 0 ? 'Try searching for something else.' : 'Try removing some filters.'}
+                            actionLabel={baseProducts.length === 0 ? 'Browse all products' : null}
+                            actionTo={baseProducts.length === 0 ? '/products' : null}
+                        />
+                    ) : (
+                        <div className='listing__grid'>
+                            {pageProducts.map(prod => <ProductCard prod={prod} key={prod._id} />)}
+                        </div>
+                    )}
+
+                    {totalPages > 1 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                            <Pagination count={totalPages} page={currentPage} onChange={handlePageChange} color='primary' shape='rounded' />
+                        </Box>
+                    )}
+                </main>
+            </div>
+
+            <Drawer anchor='left' open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+                <Box sx={{ width: 290, p: 2 }}>
+                    {filterPanel}
+                    <Button fullWidth variant='contained' sx={{ mt: 2 }} onClick={() => setFiltersOpen(false)}>
+                        Show {filteredProducts.length} products
+                    </Button>
+                </Box>
+            </Drawer>
+        </div>
     )
 }
 
-
 export default SingleCategory
-
-    //         
