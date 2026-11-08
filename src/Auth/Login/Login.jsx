@@ -1,15 +1,16 @@
 import './login.css'
-import { Avatar, Button, Checkbox, CssBaseline, FormControlLabel, Grid, InputAdornment, TextField, Typography } from '@mui/material'
-import { Box, Container } from '@mui/system'
-import React, { useEffect } from 'react'
+import { Button, InputAdornment, TextField } from '@mui/material'
+import { Box } from '@mui/system'
+import React, { useContext, useEffect } from 'react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { MdLockOutline } from 'react-icons/md'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import axios from 'axios';
 
-import CopyRight from '../../Components/CopyRight/CopyRight'
+import AuthLayout from '../AuthLayout'
+import { ContextFunction } from '../../Context/Context'
+import { getCart, getWishList } from '../../Constants/Constant'
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" })
@@ -18,6 +19,7 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
   const navigate = useNavigate()
+  const { setCart, setWishlistData } = useContext(ContextFunction)
 
   const handleOnChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value })
@@ -25,7 +27,7 @@ const Login = () => {
 
   useEffect(() => {
     let auth = localStorage.getItem('Authorization');
-    if (auth && !auth.startsWith('mock.')) {
+    if (auth) {
       navigate("/")
     }
   }, [])
@@ -47,6 +49,9 @@ const Login = () => {
         localStorage.setItem('shopIt_user', JSON.stringify({
           email: credentials.email,
         }));
+        // load this user's cart and wishlist so the header counts are right
+        getCart(true, setCart, data.authToken).catch(() => {})
+        getWishList(true, setWishlistData, data.authToken).catch(() => {})
         toast.success("Login Successfully", { autoClose: 500, theme: 'colored' })
         navigate('/')
       } catch (error) {
@@ -56,22 +61,7 @@ const Login = () => {
   }
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: '#1976d2' }}>
-          <MdLockOutline />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
+    <AuthLayout title="Welcome back" subtitle="Login to see your cart, wishlist and orders">
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
@@ -104,30 +94,20 @@ const Login = () => {
             }}
             autoComplete="current-password"
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
+<Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            size="large"
+            sx={{ mt: 2 }}
           >
-            Sign In
+            Login
           </Button>
-          <Grid container>
-            <Grid item xs></Grid>
-            <Grid item>
-              <Link to="/register" variant="body2" >
-                Don't have an account?<span style={{ color: '#1976d2' }}> Sign Up</span>
-              </Link>
-            </Grid>
-          </Grid>
+          <p className="auth__switch">
+            New to ShopIt? <Link to="/register">Create an account</Link>
+          </p>
         </Box>
-      </Box>
-      <CopyRight sx={{ mt: 8, mb: 4 }} />
-    </Container>
+    </AuthLayout>
   )
 }
 

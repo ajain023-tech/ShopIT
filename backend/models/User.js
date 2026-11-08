@@ -27,6 +27,11 @@ const UserSchema = new Schema({
     address: {
         type: String
     },
+    // shopping budget set by the user (Smart Budget)
+    budget: {
+        type: Number,
+        default: 0
+    },
     zipCode: {
         type: String
     },

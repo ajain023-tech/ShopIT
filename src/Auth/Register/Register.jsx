@@ -1,11 +1,9 @@
-import '../Login/login.css'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Avatar, Button, Checkbox, CssBaseline, FormControlLabel, Grid, InputAdornment, TextField, Typography } from '@mui/material'
-import { MdLockOutline } from 'react-icons/md'
-import { Box, Container } from '@mui/system'
+import { Button, Grid, InputAdornment, TextField } from '@mui/material'
+import { Box } from '@mui/system'
 import { toast } from 'react-toastify'
-import CopyRight from '../../Components/CopyRight/CopyRight'
+import AuthLayout from '../AuthLayout'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import axios from 'axios';
 
@@ -24,7 +22,7 @@ const Register = () => {
 
   useEffect(() => {
     let auth = localStorage.getItem('Authorization');
-    if (auth && !auth.startsWith('mock.')) {
+    if (auth) {
       navigate("/")
     }
   }, [])
@@ -58,24 +56,8 @@ const Register = () => {
   }
 
   return (
-    <>
-      <Container component="main" maxWidth="xs" sx={{ marginBottom: 10 }}>
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: '#1976d2' }}>
-            <MdLockOutline />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+    <AuthLayout title="Create your account" subtitle="It only takes a minute">
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -119,7 +101,7 @@ const Register = () => {
                   required
                   fullWidth
                   id="phoneNumber"
-                  label="Contact Number"
+                  label="Phone Number"
                   name="phoneNumber"
                   value={credentials.phoneNumber}
                   onChange={handleOnChange}
@@ -146,34 +128,21 @@ const Register = () => {
                   autoComplete="new-password"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
-            </Grid>
+</Grid>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              size="large"
+              sx={{ mt: 3 }}
             >
-              Sign Up
+              Create Account
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                Already have an account?
-                <Link to='/login' style={{ color: '#1976d2', marginLeft: 3 }}>
-                  Sign in
-                </Link>
-              </Grid>
-            </Grid>
+            <p className="auth__switch">
+              Already have an account? <Link to='/login'>Login</Link>
+            </p>
           </Box>
-        </Box>
-        <CopyRight sx={{ mt: 5 }} />
-      </Container>
-    </>
+    </AuthLayout>
   )
 }
 

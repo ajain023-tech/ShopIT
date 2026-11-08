@@ -1,21 +1,21 @@
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, InputAdornment, TextField, Typography } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Grid, InputAdornment, Tab, Tabs, TextField } from '@mui/material'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { AiFillCloseCircle, AiFillDelete, AiOutlineFileDone } from 'react-icons/ai'
 import { RiLockPasswordLine } from 'react-icons/ri'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { FiPackage } from 'react-icons/fi'
 import styles from './Update.module.css'
 import { toast } from 'react-toastify'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
-import { TiArrowBackOutline } from 'react-icons/ti';
 
 import { Transition } from '../../Constants/Constant'
-import CopyRight from '../../Components/CopyRight/CopyRight'
 
 
 const UpdateDetails = () => {
     const [userData, setUserData] = useState([])
     const [openAlert, setOpenAlert] = useState(false);
+    const [tab, setTab] = useState(0);
     let authToken = localStorage.getItem('Authorization')
     let setProceed = authToken ? true : false
     const [userDetails, setUserDetails] = useState({
@@ -77,8 +77,8 @@ const UpdateDetails = () => {
             if (!userDetails.email && !userDetails.firstName && !userDetails.phoneNumber && !userDetails.lastName && !userDetails.address && !userDetails.city && !userDetails.userState && !userDetails.zipCode) {
                 toast.error("Please Fill the all Fields", { autoClose: 500, theme: 'colored' })
             }
-            else if (userDetails.firstName.length < 3 || userDetails.lastName.length < 3) {
-                toast.error("Please enter name with more than 3 characters", { autoClose: 500, theme: 'colored' })
+            else if (!userDetails.firstName.trim() || !userDetails.lastName.trim()) {
+                toast.error("Please enter your first and last name", { autoClose: 500, theme: 'colored' })
             }
             else if (!emailRegex.test(userDetails.email)) {
                 toast.error("Please enter valid email", { autoClose: 500, theme: 'colored' })
@@ -119,7 +119,7 @@ const UpdateDetails = () => {
         }
         catch (error) {
             console.log(error);
-            toast.error(error.response.data, { autoClose: 500, theme: 'colored' })
+            toast.error(error.response?.data || 'Something went wrong', { autoClose: 800, theme: 'colored' })
 
         }
     }
@@ -145,144 +145,141 @@ const UpdateDetails = () => {
                     }
                 })
                 toast.success(data, { autoClose: 500, theme: 'colored' })
-                setPassword(password.currentPassword = "", password.newPassword = "")
+                setPassword({ currentPassword: '', newPassword: '' })
             }
         } catch (error) {
-            toast.error(error.response.data, { autoClose: 500, theme: 'colored' })
-            console.log(error);
+            toast.error(error.response?.data || 'Something went wrong', { autoClose: 800, theme: 'colored' })
         }
 
     }
     const deleteAccount = async () => {
         try {
-            const deleteUser = await axios.delete(`${process.env.REACT_APP_DELETE_USER_DETAILS}`, {
+            await axios.delete(`${process.env.REACT_APP_DELETE_USER_DETAILS}`, {
                 headers: {
                     'Authorization': authToken
                 }
             });
             toast.success("Account deleted successfully", { autoClose: 500, theme: 'colored' })
             localStorage.removeItem('Authorization');
+            localStorage.removeItem('shopIt_user');
             sessionStorage.removeItem('totalAmount');
             navigate("/login")
         } catch (error) {
-            toast.error(error.response.data, { autoClose: 500, theme: 'colored' })
+            toast.error(error.response?.data || 'Something went wrong', { autoClose: 800, theme: 'colored' })
 
         }
     }
-    return (
-        <>
-            <Container sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', marginBottom: 10 }}>
-                <Typography variant='h6' sx={{ margin: '30px 0', fontWeight: 'bold', color: '#1976d2' }}>Personal Information</Typography>
-                <form noValidate autoComplete="off" className={styles.checkout_form} onSubmit={handleSubmit} >
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="First Name" name='firstName' value={userDetails.firstName || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="Last Name" name='lastName' value={userDetails.lastName || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="Contact Number" type='tel' name='phoneNumber' value={userDetails.phoneNumber || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="Email" name='email' value={userDetails.email || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField label="Address" name='address' value={userDetails.address || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField label="City" name='city' value={userDetails.city || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField type='tel' label="Postal/Zip Code" name='zipCode' value={userDetails.zipCode || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} >
-                            <TextField label="Province/State" name='userState' value={userDetails.userState || ''} onChange={handleOnchange} variant="outlined" fullWidth />
-                        </Grid>
-                    </Grid>
-                    <Container sx={{ display: 'flex', justifyContent: 'space-around', marginTop: 5 }}>
-                        <Button variant='contained' endIcon={<TiArrowBackOutline />} onClick={()=>navigate(-1)} >Back</Button>
-                        <Button variant='contained' endIcon={<AiOutlineFileDone />}  type='submit'>Save</Button>
-                    </Container>
-                </form >
+    const passwordField = (name, label, visible, toggleVisible) => (
+        <TextField
+            label={label}
+            name={name}
+            type={visible ? "text" : "password"}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end" onClick={toggleVisible} sx={{ cursor: 'pointer' }}>
+                        {visible ? <RiEyeFill /> : <RiEyeOffFill />}
+                    </InputAdornment>
+                )
+            }}
+            value={password[name] || ''}
+            onChange={(e) => setPassword({ ...password, [e.target.name]: e.target.value })}
+            fullWidth />
+    )
 
-                <Typography variant='h6' sx={{ margin: '20px 0', fontWeight: 'bold', color: '#1976d2' }}>Reset Password</Typography>
-                <form onSubmit={handleResetPassword}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} >
-                            <TextField
-                                label="Current Password"
-                                name='currentPassword'
-                                type={showPassword ? "text" : "password"}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end" onClick={handleClickShowPassword} sx={{ cursor: 'pointer' }}>
-                                            {showPassword ? <RiEyeFill /> : <RiEyeOffFill />}
-                                        </InputAdornment>
-                                    )
-                                }}
-                                value={password.currentPassword || ''}
-                                onChange={
-                                    (e) => setPassword({
-                                        ...password, [e.target.name]: e.target.value
-                                    })
-                                }
-                                variant="outlined"
-                                fullWidth />
-                        </Grid>
-                        <Grid item xs={12} >
-                            <TextField
-                                label="New Password"
-                                name='newPassword'
-                                type={showNewPassword ? "text" : "password"}
-                                id="password"
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end" onClick={() => setShowNewPassword(!showNewPassword)} sx={{ cursor: 'pointer' }}>
-                                            {showNewPassword ? <RiEyeFill /> : <RiEyeOffFill />}
-                                        </InputAdornment>
-                                    )
-                                }}
-                                value={password.newPassword || ''}
-                                onChange={
-                                    (e) => setPassword({
-                                        ...password, [e.target.name]: e.target.value
-                                    })
-                                }
-                                variant="outlined"
-                                fullWidth />
-                        </Grid>
-                    </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: "25px 0", width: '100%' }}>
-                        <Button variant='contained' color='primary' endIcon={<RiLockPasswordLine />} type='submit'>Reset</Button>
-                    </Box>
-                </form>
-                <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', margin: "25px 0", width: '100%' }}>
-                    <Typography variant='h6'>Delete Your Account?</Typography>
-                    <Button variant='contained' color='error' endIcon={<AiFillDelete />} onClick={() => setOpenAlert(true)}>Delete</Button>
-                </Box>
-                <Dialog
-                    open={openAlert}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={() => setOpenAlert(false)}
-                    aria-describedby="alert-dialog-slide-description"
+    const profileFields = [
+        { name: 'firstName', label: 'First Name', half: true },
+        { name: 'lastName', label: 'Last Name', half: true },
+        { name: 'phoneNumber', label: 'Phone Number', half: true },
+        { name: 'email', label: 'Email', half: true },
+        { name: 'address', label: 'Address' },
+        { name: 'city', label: 'City', half: true },
+        { name: 'zipCode', label: 'PIN Code', half: true },
+        { name: 'userState', label: 'State' },
+    ]
+
+    return (
+        <div className={styles.page}>
+            <aside className={styles.sidebar}>
+                <div className={styles.avatar}>{(userDetails.firstName || '?')[0].toUpperCase()}</div>
+                <p className={styles.name}>{userDetails.firstName} {userDetails.lastName}</p>
+                <p className={styles.email}>{userDetails.email}</p>
+                <Tabs
+                    orientation='vertical'
+                    value={tab}
+                    onChange={(e, value) => setTab(value)}
+                    sx={{ width: '100%', mt: 2, '& .MuiTab-root': { alignItems: 'flex-start', minHeight: 44 } }}
                 >
-                    {/* <DialogTitle>{"Use Google's location service?"}</DialogTitle> */}
-                    <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 } }}>
-                        <DialogContentText style={{ textAlign: 'center' }} id="alert-dialog-slide-description">
-                            <Typography variant='body1'>Your all data will be erased</Typography>
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                        <Button variant='contained' endIcon={<AiFillDelete />} color='error' onClick={deleteAccount}>Delete</Button>
-                        <Button variant='contained' color='primary'
-                            onClick={() => setOpenAlert(false)} endIcon={<AiFillCloseCircle />}>Close</Button>
-                    </DialogActions>
-                </Dialog>
-            </Container >
-            <CopyRight sx={{ mt: 4, mb: 10 }} />
-        </>
+                    <Tab label='Profile & Address' />
+                    <Tab label='Change Password' />
+                    <Tab label='Account' />
+                </Tabs>
+                <Button component={Link} to='/orders' startIcon={<FiPackage />} sx={{ mt: 1, alignSelf: 'flex-start' }}>
+                    My Orders
+                </Button>
+            </aside>
+
+            <section className={styles.panel}>
+                {tab === 0 && (
+                    <form noValidate autoComplete="off" onSubmit={handleSubmit}>
+                        <h2 className={styles.heading}>Profile & Address</h2>
+                        <p className={styles.hint}>This address is used for delivery at checkout.</p>
+                        <Grid container spacing={2}>
+                            {profileFields.map(field => (
+                                <Grid item xs={12} sm={field.half ? 6 : 12} key={field.name}>
+                                    <TextField label={field.label} name={field.name} value={userDetails[field.name] || ''} onChange={handleOnchange} fullWidth />
+                                </Grid>
+                            ))}
+                        </Grid>
+                        <div className={styles.actions}>
+                            <Button variant='contained' size='large' endIcon={<AiOutlineFileDone />} type='submit'>Save Changes</Button>
+                        </div>
+                    </form>
+                )}
+
+                {tab === 1 && (
+                    <form onSubmit={handleResetPassword}>
+                        <h2 className={styles.heading}>Change Password</h2>
+                        <p className={styles.hint}>Use at least 5 characters.</p>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>{passwordField('currentPassword', 'Current Password', showPassword, handleClickShowPassword)}</Grid>
+                            <Grid item xs={12}>{passwordField('newPassword', 'New Password', showNewPassword, () => setShowNewPassword(!showNewPassword))}</Grid>
+                        </Grid>
+                        <div className={styles.actions}>
+                            <Button variant='contained' size='large' endIcon={<RiLockPasswordLine />} type='submit'>Update Password</Button>
+                        </div>
+                    </form>
+                )}
+
+                {tab === 2 && (
+                    <div>
+                        <h2 className={styles.heading}>Delete Account</h2>
+                        <p className={styles.hint}>
+                            This permanently deletes your account along with your cart, wishlist and orders. This cannot be undone.
+                        </p>
+                        <div className={styles.actions}>
+                            <Button variant='outlined' color='error' size='large' endIcon={<AiFillDelete />} onClick={() => setOpenAlert(true)}>Delete My Account</Button>
+                        </div>
+                    </div>
+                )}
+            </section>
+
+            <Dialog
+                open={openAlert}
+                TransitionComponent={Transition}
+                keepMounted
+                onClose={() => setOpenAlert(false)}
+            >
+                <DialogContent sx={{ width: { xs: 280, md: 350, xl: 400 } }}>
+                    <DialogContentText style={{ textAlign: 'center' }}>
+                        Are you sure? All your data will be erased.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly', pb: 2 }}>
+                    <Button variant='contained' endIcon={<AiFillDelete />} color='error' onClick={deleteAccount}>Delete</Button>
+                    <Button variant='outlined' onClick={() => setOpenAlert(false)} endIcon={<AiFillCloseCircle />}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
+        </div>
     )
 }
 

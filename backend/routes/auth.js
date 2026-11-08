@@ -122,7 +122,24 @@ router.get('/getuser', authUser, async (req, res) => {
 // update user details
 router.put('/updateuser', authUser, async (req, res) => {
     const { userDetails } = req.body
-    let convertData = JSON.parse(userDetails)
+    // only these fields can be changed from the profile page
+    const allowedFields = ['firstName', 'lastName', 'email', 'phoneNumber', 'address', 'zipCode', 'city', 'userState', 'budget']
+    let convertData = {}
+    try {
+        const parsed = typeof userDetails === 'string' ? JSON.parse(userDetails) : userDetails
+        allowedFields.forEach(field => {
+            if (parsed && parsed[field] !== undefined) convertData[field] = parsed[field]
+        })
+    } catch (error) {
+        return res.status(400).send("Invalid details")
+    }
+    if (convertData.budget !== undefined) {
+        const budget = Number(convertData.budget)
+        if (!Number.isFinite(budget) || budget < 0 || budget > 10000000) {
+            return res.status(400).send("Please enter a valid budget")
+        }
+        convertData.budget = Math.round(budget)
+    }
     try {
         const user = await User.findById(req.user.id)
         if (user) {

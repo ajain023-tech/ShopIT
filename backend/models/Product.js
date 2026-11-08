@@ -4,6 +4,8 @@ const ProductSchema = new Schema({
     name: String,
     brand: String,
     price: Number,
+    // MRP shown crossed out next to the selling price
+    originalPrice: Number,
     category: String,
     image: String,
     rating: Number,

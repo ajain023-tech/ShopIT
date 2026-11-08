@@ -32,7 +32,7 @@ const products = [
   },
   {
     name: "Van Heusen Men's Fleece Sweatshirt", brand: 'Van Heusen', price: 1499, category: 'men',
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500&q=80',
     rating: 4.3, type: 'cloths', description: "Soft fleece sweatshirt with kangaroo pocket. Great for cooler days."
   },
   {
@@ -64,7 +64,7 @@ const products = [
   },
   {
     name: "W for Woman Ethnic Printed Kurti", brand: 'W', price: 999, category: 'women',
-    image: 'https://images.unsplash.com/photo-1583759136431-3a5639002c9e?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500&q=80',
     rating: 4.3, type: 'cloths', description: "Vibrant block-printed kurti with 3/4 sleeves. Everyday ethnic wear."
   },
   {
@@ -84,7 +84,7 @@ const products = [
   },
   {
     name: "AND Women's Formal Blazer", brand: 'AND', price: 2499, category: 'women',
-    image: 'https://images.unsplash.com/photo-1548549557-dbe9155f9e75?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1617575521317-d2974f3b56d2?w=500&q=80',
     rating: 4.3, type: 'cloths', description: "Structured single-button blazer. Office-chic that means business."
   },
   {
@@ -146,7 +146,7 @@ const products = [
   },
   {
     name: 'Hoka Clifton 9 Running Shoes', brand: 'Hoka', price: 13999, category: 'running',
-    image: 'https://images.unsplash.com/photo-1556906781-9a412961a28b?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
     rating: 4.6, type: 'shoe', description: "Maximal cushioning with a low weight. Meta-Rocker geometry for smooth rolling."
   },
 
@@ -173,7 +173,7 @@ const products = [
   },
   {
     name: 'Nike Tiempo Legend 10 Club FG', brand: 'Nike', price: 5495, category: 'football',
-    image: 'https://images.unsplash.com/photo-1462572319135-f9a68c720eac?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=500&q=80',
     rating: 4.5, type: 'shoe', description: "Textured synthetic leather for precise ball control. Ideal for central midfielders."
   },
   {
@@ -230,7 +230,7 @@ const products = [
   },
   {
     name: "Arrow Men's Cap Toe Derby", brand: 'Arrow', price: 2999, category: 'formal',
-    image: 'https://images.unsplash.com/photo-1571456111134-0393e18a42c1?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&q=80',
     rating: 4.5, type: 'shoe', description: "Italian-crafted cap-toe derby in genuine leather. The boardroom essential."
   },
 
@@ -252,7 +252,7 @@ const products = [
   },
   {
     name: "Converse Chuck Taylor All Star", brand: 'Converse', price: 3799, category: 'casual',
-    image: 'https://images.unsplash.com/photo-1494496195158-c3bc7e73e2c5?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
     rating: 4.5, type: 'shoe', description: "The original canvas high-top sneaker. Iconic rubber toe cap and OrthoLite cushioning."
   },
   {
@@ -289,7 +289,7 @@ const products = [
   },
   {
     name: 'LG UltraGear 27GS60F 27" FHD Gaming Monitor', brand: 'LG', price: 13999, category: 'monitor',
-    image: 'https://images.unsplash.com/photo-1593640408182-31c228b19f60?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&q=80',
     rating: 4.6, type: 'electronics', description: "27\" FHD IPS, 180Hz, 1ms MPRT, G-SYNC Compatible. Pure gaming performance."
   },
   {
@@ -309,7 +309,7 @@ const products = [
   },
   {
     name: 'Samsung Odyssey G5 27" QHD Curved', brand: 'Samsung', price: 16999, category: 'monitor',
-    image: 'https://images.unsplash.com/photo-1655721533850-68bf38cbf193?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=500&q=80',
     rating: 4.6, type: 'electronics', description: "27\" WQHD 1000R Curved, 165Hz, 1ms, AMD FreeSync Premium. Immersive gaming."
   },
   {
@@ -351,12 +351,12 @@ const products = [
   },
   {
     name: 'WD Green 240GB SATA SSD', brand: 'Western Digital', price: 2499, category: 'ssd',
-    image: 'https://images.unsplash.com/photo-1611450776669-ef10f2b2406b?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80',
     rating: 4.3, type: 'electronics', description: "240GB SATA SSD for everyday computing. Low power consumption, silent operation."
   },
   {
     name: 'Lexar NM620 512GB NVMe SSD', brand: 'Lexar', price: 4299, category: 'ssd',
-    image: 'https://images.unsplash.com/photo-1606318621004-c51ccc405dab?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1544256718-3bcf237f3974?w=500&q=80',
     rating: 4.4, type: 'electronics', description: "512GB PCIe Gen3 NVMe with 3300 MB/s read. Great performance per rupee."
   },
 
@@ -378,7 +378,7 @@ const products = [
   },
   {
     name: 'Seagate Expansion 2TB Portable HDD', brand: 'Seagate', price: 4999, category: 'hdd',
-    image: 'https://images.unsplash.com/photo-1608155686393-8fefad9a9dab?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80',
     rating: 4.4, type: 'electronics', description: "2TB USB 3.0 portable drive. Plug-and-play, no external power required."
   },
   {
@@ -388,17 +388,17 @@ const products = [
   },
   {
     name: 'Seagate IronWolf 4TB NAS HDD', brand: 'Seagate', price: 8999, category: 'hdd',
-    image: 'https://images.unsplash.com/photo-1602526212974-d77cb6a2b962?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=500&q=80',
     rating: 4.6, type: 'electronics', description: "4TB NAS-optimized HDD. Built for 24×7 operation."
   },
   {
     name: 'WD Purple 2TB Surveillance HDD', brand: 'Western Digital', price: 5499, category: 'hdd',
-    image: 'https://images.unsplash.com/photo-1583534978996-9b94e7693099?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=500&q=80',
     rating: 4.4, type: 'electronics', description: "2TB drive optimized for DVR and NVR systems. AllFrame AI™ technology."
   },
   {
     name: 'Toshiba N300 4TB NAS HDD', brand: 'Toshiba', price: 8499, category: 'hdd',
-    image: 'https://images.unsplash.com/photo-1604069406218-c3c53e2e2a26?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=500&q=80',
     rating: 4.3, type: 'electronics', description: "4TB 7200 RPM NAS HDD. Designed for 24/7 multi-drive enclosures."
   },
 
@@ -462,7 +462,7 @@ const products = [
   },
   {
     name: 'The Lean Startup by Eric Ries', brand: 'Currency', price: 449, category: 'business',
-    image: 'https://images.unsplash.com/photo-1568667256549-094345857949?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500&q=80',
     rating: 4.5, type: 'book', author: 'Eric Ries', description: "How entrepreneurs use continuous innovation to create successful businesses."
   },
   {
@@ -519,12 +519,12 @@ const products = [
   },
   {
     name: 'And Then There Were None by Agatha Christie', brand: 'HarperCollins', price: 249, category: 'mystery',
-    image: 'https://images.unsplash.com/photo-1476275466078-4cdc8b96db22?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1587876931567-564ce588bfbd?w=500&q=80',
     rating: 4.8, type: 'book', author: 'Agatha Christie', description: "Ten strangers are lured to an island and murdered one by one. Best-selling mystery novel of all time."
   },
   {
     name: 'The Thursday Murder Club by Richard Osman', brand: 'Viking', price: 349, category: 'mystery',
-    image: 'https://images.unsplash.com/photo-1501975558162-0be7b8c42d17?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=500&q=80',
     rating: 4.5, type: 'book', author: 'Richard Osman', description: "Four retired friends who solve cold cases take on a live murder."
   },
 
@@ -573,7 +573,7 @@ const products = [
   // ───────────── JEWELRY – ACCESSORIES ─────────────
   {
     name: 'Tanishq 22KT Gold Mangalsutra', brand: 'Tanishq', price: 24999, category: 'accessories',
-    image: 'https://images.unsplash.com/photo-1601121141461-9d6647bef0a1?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500&q=80',
     rating: 4.7, type: 'jewelry', description: "Handcrafted 22KT gold mangalsutra with classic black bead pattern. Certified hallmarked gold."
   },
   {
@@ -583,7 +583,7 @@ const products = [
   },
   {
     name: 'PC Jeweller Silver Bracelet', brand: 'PC Jeweller', price: 1799, category: 'accessories',
-    image: 'https://images.unsplash.com/photo-1573408301185-9519f94b2caf?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=500&q=80',
     rating: 4.3, type: 'jewelry', description: "925 sterling silver adjustable bracelet with heart-link design. BIS hallmarked."
   },
   {
@@ -623,12 +623,26 @@ const products = [
   },
 ];
 
+// discount on MRP for each product, cycles through these values
+const DISCOUNTS = [10, 15, 20, 25, 30, 35, 40];
+
+// MRP rounded so it ends in 9, e.g. 1299
+const getOriginalPrice = (price, index) => {
+  const discount = DISCOUNTS[index % DISCOUNTS.length];
+  return Math.ceil(price / (1 - discount / 100) / 10) * 10 - 1;
+};
+
 async function seed() {
   await mongoose.connect(process.env.MONGO_URL);
 
+  const catalog = products.map((product, index) => ({
+    ...product,
+    originalPrice: product.originalPrice || getOriginalPrice(product.price, index),
+  }));
+
   // Delete all existing products and re-insert fresh with images
   await Product.deleteMany({});
-  await Product.insertMany(products);
+  await Product.insertMany(catalog);
 
   console.log(`Catalog seeded: ${products.length} products inserted with real images.`);
   await mongoose.disconnect();
