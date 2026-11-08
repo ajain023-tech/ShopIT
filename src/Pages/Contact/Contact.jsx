@@ -36,8 +36,8 @@ const contactInfo = [
   {
     icon: <FaGithub size={28} color='#1976d2' />,
     label: 'GitHub',
-    value: 'github.com/ajain023-tech/E-Commerce-Storefront',
-    href: 'https://github.com/ajain023-tech/E-Commerce-Storefront',
+    value: 'github.com/ajain023-tech/ShopIT',
+    href: 'https://github.com/ajain023-tech/ShopIT',
   },
 ];
 

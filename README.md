@@ -76,8 +76,8 @@ You need **Node.js** (v18 or newer) and **MongoDB** running on `localhost:27017`
 
 ```bash
 # 1. clone
-git clone https://github.com/ajain023-tech/E-Commerce-Storefront.git
-cd E-Commerce-Storefront
+git clone https://github.com/ajain023-tech/ShopIT.git
+cd ShopIT
 
 # 2. backend
 cd backend
