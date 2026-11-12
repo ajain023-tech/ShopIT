@@ -1,13 +1,13 @@
-import React, { useContext, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Breadcrumbs, Button, Typography } from '@mui/material'
-import { AiOutlineClose, AiFillStar } from 'react-icons/ai'
+import React, { useContext, useEffect, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Breadcrumbs, Button, CircularProgress, Typography } from '@mui/material'
+import { AiOutlineClose, AiFillStar, AiOutlineShareAlt } from 'react-icons/ai'
 import { MdCompareArrows, MdSavings, MdThumbUp, MdLocalOffer } from 'react-icons/md'
 import { toast } from 'react-toastify'
 import EmptyState from '../../Components/EmptyState/EmptyState'
-import useCompare from '../../Hooks/useCompare'
+import useCompare, { MAX_COMPARE } from '../../Hooks/useCompare'
 import { ContextFunction } from '../../Context/Context'
-import { addToCart, FREE_SHIPPING_ABOVE, getShippingCharge } from '../../Constants/Constant'
+import { addToCart, FREE_SHIPPING_ABOVE, getAllProducts, getShippingCharge } from '../../Constants/Constant'
 import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../Helpers/price'
 import { typeLabels } from '../../SingleCategory/SingleCategory'
 import '../../Components/Compare/Compare.css'
@@ -17,11 +17,47 @@ const best = (products, score) => products.reduce((a, b) => (score(b) > score(a)
 
 // Price Comparison page: products side by side with the best options highlighted
 const Compare = () => {
-    const { compareList, removeFromCompare, clearCompare } = useCompare()
+    const { compareList, removeFromCompare, clearCompare, compareProducts } = useCompare()
     const { setCart } = useContext(ContextFunction)
     const [addingId, setAddingId] = useState(null)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const sharedIds = searchParams.get('ids')
     const navigate = useNavigate()
     const authToken = localStorage.getItem('Authorization')
+
+    // open a shared comparison link: /compare?ids=id1,id2,...
+    useEffect(() => {
+        if (!sharedIds) return
+        const ids = sharedIds.split(',').map(id => id.trim()).filter(Boolean).slice(0, MAX_COMPARE)
+        getAllProducts((products) => {
+            const shared = ids
+                .map(id => (products || []).find(product => product._id === id))
+                .filter(Boolean)
+            if (shared.length > 0) {
+                compareProducts(shared)
+            } else {
+                toast.error('The shared products could not be found', { autoClose: 1000, theme: 'colored' })
+            }
+            const params = new URLSearchParams(searchParams)
+            params.delete('ids')
+            setSearchParams(params, { replace: true })
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sharedIds])
+
+    const shareComparison = async () => {
+        const url = `${window.location.origin}/compare?ids=${compareList.map(p => p._id).join(',')}`
+        try {
+            await navigator.clipboard.writeText(url)
+            toast.success('Link copied', { autoClose: 800, theme: 'colored' })
+        } catch (error) {
+            toast.error('Could not copy the link', { autoClose: 800, theme: 'colored' })
+        }
+    }
+
+    if (sharedIds) {
+        return <div className='cart-loading' style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><CircularProgress /></div>
+    }
 
     if (compareList.length === 0) {
         return (
@@ -118,7 +154,8 @@ const Compare = () => {
                     <h1>Price Comparison</h1>
                     <p>Comparing {compareList.length} {compareList.length === 1 ? 'product' : 'products'}</p>
                 </div>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    <Button variant='contained' startIcon={<AiOutlineShareAlt />} onClick={shareComparison}>Share</Button>
                     <Button variant='outlined' component={Link} to='/products'>Add more</Button>
                     <Button color='error' onClick={clearCompare}>Clear all</Button>
                 </div>
