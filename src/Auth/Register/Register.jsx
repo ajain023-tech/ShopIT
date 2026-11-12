@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button, Grid, InputAdornment, LinearProgress, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import { toast } from 'react-toastify'
 import AuthLayout from '../AuthLayout'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import axios from 'axios';
+import usePageTitle from '../../Hooks/usePageTitle'
+import { getSafeRedirect } from '../../Helpers/redirect';
 
 // 0-4: +1 for length >= 8, a number, an uppercase letter and a symbol
 const getStrength = (password) => {
@@ -31,6 +33,9 @@ const Register = () => {
     setShowPassword(!showPassword);
   };
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
+  const redirectTo = getSafeRedirect(redirectParam)
 
   const handleOnChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value })
@@ -39,7 +44,7 @@ const Register = () => {
   useEffect(() => {
     let auth = localStorage.getItem('Authorization');
     if (auth) {
-      navigate("/")
+      navigate(redirectTo, { replace: true })
     }
   }, [])
 
@@ -64,7 +69,7 @@ const Register = () => {
         localStorage.setItem('Authorization', data.authToken);
         localStorage.setItem('shopIt_user', JSON.stringify(credentials));
         toast.success("Registered Successfully", { autoClose: 500, theme: 'colored' })
-        navigate('/')
+        navigate(redirectTo, { replace: true })
       } catch (error) {
         toast.error(error.response?.data?.error || "Unable to register. Please try again.", { autoClose: 1500, theme: 'colored' })
       }
@@ -167,7 +172,7 @@ const Register = () => {
               Create Account
             </Button>
             <p className="auth__switch">
-              Already have an account? <Link to='/login'>Login</Link>
+              Already have an account? <Link to={redirectParam ? `/login?redirect=${encodeURIComponent(redirectTo)}` : '/login'}>Login</Link>
             </p>
           </Box>
     </AuthLayout>

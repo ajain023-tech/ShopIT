@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs, Button, CircularProgress, Typography } from '@mui/material'
 import { AiOutlineClose, AiFillStar, AiOutlineShareAlt } from 'react-icons/ai'
 import { MdCompareArrows, MdSavings, MdThumbUp, MdLocalOffer } from 'react-icons/md'
@@ -11,6 +11,8 @@ import { addToCart, FREE_SHIPPING_ABOVE, getAllProducts, getShippingCharge } fro
 import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../Helpers/price'
 import { typeLabels } from '../../SingleCategory/SingleCategory'
 import '../../Components/Compare/Compare.css'
+import usePageTitle from '../../Hooks/usePageTitle'
+import { getLoginPath } from '../../Helpers/redirect'
 
 // pick the product with the highest value of `score`
 const best = (products, score) => products.reduce((a, b) => (score(b) > score(a) ? b : a))
@@ -23,6 +25,7 @@ const Compare = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const sharedIds = searchParams.get('ids')
     const navigate = useNavigate()
+    const location = useLocation()
     const authToken = localStorage.getItem('Authorization')
 
     // open a shared comparison link: /compare?ids=id1,id2,...
@@ -79,7 +82,7 @@ const Compare = () => {
     const handleAddToCart = async (product) => {
         if (!authToken) {
             toast.info('Please login to add items to your cart', { autoClose: 900, theme: 'colored' })
-            return navigate('/login')
+            return navigate(getLoginPath(location))
         }
         try {
             setAddingId(product._id)

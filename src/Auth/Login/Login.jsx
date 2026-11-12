@@ -3,7 +3,7 @@ import { Button, InputAdornment, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useContext, useEffect } from 'react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import axios from 'axios';
@@ -11,6 +11,8 @@ import axios from 'axios';
 import AuthLayout from '../AuthLayout'
 import { ContextFunction } from '../../Context/Context'
 import { getCart, getWishList } from '../../Constants/Constant'
+import usePageTitle from '../../Hooks/usePageTitle'
+import { getSafeRedirect } from '../../Helpers/redirect'
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" })
@@ -19,6 +21,9 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
+  const redirectTo = getSafeRedirect(redirectParam)
   const { setCart, setWishlistData } = useContext(ContextFunction)
 
   const handleOnChange = (e) => {
@@ -28,7 +33,7 @@ const Login = () => {
   useEffect(() => {
     let auth = localStorage.getItem('Authorization');
     if (auth) {
-      navigate("/")
+      navigate(redirectTo, { replace: true })
     }
   }, [])
 
@@ -53,7 +58,7 @@ const Login = () => {
         getCart(true, setCart, data.authToken).catch(() => {})
         getWishList(true, setWishlistData, data.authToken).catch(() => {})
         toast.success("Login Successfully", { autoClose: 500, theme: 'colored' })
-        navigate('/')
+        navigate(redirectTo, { replace: true })
       } catch (error) {
         toast.error(error.response?.data?.error || "Invalid email or password.", { autoClose: 1500, theme: 'colored' })
       }
@@ -104,7 +109,7 @@ const Login = () => {
             Login
           </Button>
           <p className="auth__switch">
-            New to ShopIt? <Link to="/register">Create an account</Link>
+            New to ShopIt? <Link to={redirectParam ? `/register?redirect=${encodeURIComponent(redirectTo)}` : '/register'}>Create an account</Link>
           </p>
         </Box>
     </AuthLayout>
