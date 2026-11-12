@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Button, Grid, InputAdornment, TextField } from '@mui/material'
+import { Button, Grid, InputAdornment, LinearProgress, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import { toast } from 'react-toastify'
 import AuthLayout from '../AuthLayout'
 import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import axios from 'axios';
+
+// 0-4: +1 for length >= 8, a number, an uppercase letter and a symbol
+const getStrength = (password) => {
+  let strength = 0
+  if (password.length >= 8) strength++
+  if (/[0-9]/.test(password)) strength++
+  if (/[A-Z]/.test(password)) strength++
+  if (/[^A-Za-z0-9]/.test(password)) strength++
+  return strength
+}
+
+const getStrengthInfo = (strength) => {
+  if (strength <= 1) return { label: 'Weak', color: 'error' }
+  if (strength === 2) return { label: 'Medium', color: 'warning' }
+  return { label: 'Strong', color: 'success' }
+}
 
 const Register = () => {
 
@@ -127,6 +143,18 @@ const Register = () => {
                   onChange={handleOnChange}
                   autoComplete="new-password"
                 />
+                {credentials.password && (() => {
+                  const strength = getStrength(credentials.password)
+                  const { label, color } = getStrengthInfo(strength)
+                  return (
+                    <div className="password-strength">
+                      <LinearProgress variant="determinate" value={strength * 25} color={color} className="password-strength__bar" />
+                      <span className={`password-strength__label password-strength__label--${color}`}>
+                        Password strength: {label}
+                      </span>
+                    </div>
+                  )
+                })()}
               </Grid>
 </Grid>
             <Button

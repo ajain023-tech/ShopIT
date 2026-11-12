@@ -123,3 +123,32 @@ body.dark-mode .auth__card {
 body.dark-mode .auth__subtitle {
     color: #94a3b8;
 }
+
+/* password strength meter on the register page */
+.password-strength {
+  margin-top: 8px;
+}
+
+.password-strength__bar {
+  height: 6px !important;
+  border-radius: 4px;
+}
+
+.password-strength__label {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.password-strength__label--error {
+  color: #d32f2f;
+}
+
+.password-strength__label--warning {
+  color: #ed6c02;
+}
+
+.password-strength__label--success {
+  color: #2e7d32;
+}
