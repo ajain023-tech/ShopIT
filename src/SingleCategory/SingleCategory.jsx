@@ -2,7 +2,7 @@ import './singlecategory.css'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import {
-    Box, Breadcrumbs, Button, Checkbox, Drawer, FormControl, FormControlLabel, MenuItem,
+    Box, Breadcrumbs, Button, Checkbox, Chip, Drawer, FormControl, FormControlLabel, MenuItem,
     Pagination, Radio, RadioGroup, Select, Slider, Typography
 } from '@mui/material'
 import { BiFilterAlt } from 'react-icons/bi'
@@ -147,6 +147,34 @@ const SingleCategory = () => {
         window.scroll(0, 0)
     }
 
+    // filters currently applied, shown as chips that can be removed one by one
+    const activeFilters = [
+        ...selectedTypes.map(type => ({
+            key: `type-${type}`, label: typeLabels[type] || formatLabel(type),
+            onDelete: () => toggle(selectedTypes, setSelectedTypes, type),
+        })),
+        ...selectedSubCategories.map(sub => ({
+            key: `sub-${sub}`, label: formatLabel(sub),
+            onDelete: () => toggle(selectedSubCategories, setSelectedSubCategories, sub),
+        })),
+        ...selectedBrands.map(brand => ({
+            key: `brand-${brand}`, label: brand,
+            onDelete: () => toggle(selectedBrands, setSelectedBrands, brand),
+        })),
+        ...(priceRange ? [{
+            key: 'price', label: `${formatPrice(priceRange[0])} – ${formatPrice(priceRange[1])}`,
+            onDelete: () => { setPriceRange(null); setCurrentPage(1) },
+        }] : []),
+        ...(minRating > 0 ? [{
+            key: 'rating', label: `${minRating}★ & above`,
+            onDelete: () => { setMinRating(0); setCurrentPage(1) },
+        }] : []),
+        ...(withinBudget ? [{
+            key: 'budget', label: 'Within my budget',
+            onDelete: () => { setWithinBudget(false); setCurrentPage(1) },
+        }] : []),
+    ]
+
     const title = searchTerm
         ? `Results for "${searchTerm}"`
         : cat ? (typeLabels[cat] || formatLabel(cat)) : 'All Products'
@@ -260,6 +288,15 @@ const SingleCategory = () => {
                             </FormControl>
                         </div>
                     </div>
+
+                    {activeFilters.length > 0 && (
+                        <div className='listing__chips'>
+                            {activeFilters.map(filter => (
+                                <Chip key={filter.key} label={filter.label} onDelete={filter.onDelete} color='primary' variant='outlined' size='small' />
+                            ))}
+                            <Button size='small' onClick={clearFilters}>Clear all</Button>
+                        </div>
+                    )}
 
                     {isLoading ? (
                         <div className='listing__grid'>

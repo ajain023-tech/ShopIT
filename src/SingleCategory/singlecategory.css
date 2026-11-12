@@ -93,6 +93,14 @@
     display: none !important;
 }
 
+.listing__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
 .listing__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
