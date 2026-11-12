@@ -52,7 +52,7 @@ const matchesSearch = (product, term) =>
 // list of products with filters; used for /products, /products?search=... and /product/type/:cat
 const SingleCategory = () => {
     const { cat } = useParams()
-    const [searchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const searchTerm = (searchParams.get('search') || '').trim()
 
     const [allProducts, setAllProducts] = useState([])
@@ -140,6 +140,16 @@ const SingleCategory = () => {
         setMinRating(0)
         setWithinBudget(false)
         setCurrentPage(1)
+    }
+
+    // keep the sort in the URL so it survives a refresh and can be shared
+    const handleSortChange = (value) => {
+        setSort(value)
+        setCurrentPage(1)
+        const params = new URLSearchParams(searchParams)
+        if (value === 'relevance') params.delete('sort')
+        else params.set('sort', value)
+        setSearchParams(params, { replace: true })
     }
 
     const handlePageChange = (event, value) => {
@@ -280,7 +290,7 @@ const SingleCategory = () => {
                                 Filters
                             </Button>
                             <FormControl size='small'>
-                                <Select value={sort} onChange={(e) => { setSort(e.target.value); setCurrentPage(1) }} sx={{ minWidth: 190, bgcolor: 'background.paper' }}>
+                                <Select value={sort} onChange={(e) => handleSortChange(e.target.value)} sx={{ minWidth: 190, bgcolor: 'background.paper' }}>
                                     {sortOptions.map(option => (
                                         <MenuItem key={option.value} value={option.value}>Sort: {option.label}</MenuItem>
                                     ))}
