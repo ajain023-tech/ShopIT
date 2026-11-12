@@ -66,6 +66,14 @@
     color: #6b7280;
 }
 
+.order__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 18px;
+    border-top: 1px solid #eef0f3;
+}
+
 @media (max-width: 600px) {
     .order__id {
         margin-left: 0;
@@ -81,6 +89,7 @@ body.dark-mode .order__header {
 }
 
 body.dark-mode .order__item,
-body.dark-mode .order__address {
+body.dark-mode .order__address,
+body.dark-mode .order__actions {
     border-color: #334155;
 }

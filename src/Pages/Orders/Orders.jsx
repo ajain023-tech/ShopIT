@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Breadcrumbs, Chip, CircularProgress, Typography } from '@mui/material'
+import { Breadcrumbs, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material'
 import { FiPackage } from 'react-icons/fi'
 import { AiOutlineLogin } from 'react-icons/ai'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 import EmptyState from '../../Components/EmptyState/EmptyState'
 import { formatPrice } from '../../Helpers/price'
 import '../Cart/Cart.css'
 import './Orders.css'
+
+const statusColors = { Placed: 'success', Cancelled: 'error' }
 
 const formatDate = (date) =>
     new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -16,6 +19,8 @@ const formatDate = (date) =>
 const Orders = () => {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
+    const [orderToCancel, setOrderToCancel] = useState(null)
+    const [cancelling, setCancelling] = useState(false)
     const authToken = localStorage.getItem('Authorization')
 
     useEffect(() => {
@@ -29,6 +34,23 @@ const Orders = () => {
             .catch(() => setOrders([]))
             .finally(() => setLoading(false))
     }, [authToken])
+
+    const cancelOrder = async () => {
+        if (!orderToCancel) return
+        try {
+            setCancelling(true)
+            const { data } = await axios.put(`${process.env.REACT_APP_CANCEL_ORDER}/${orderToCancel._id}`, {}, {
+                headers: { 'Authorization': authToken }
+            })
+            setOrders(prev => prev.map(order => order._id === data._id ? { ...order, status: data.status } : order))
+            toast.success('Order cancelled', { autoClose: 800, theme: 'colored' })
+        } catch (error) {
+            toast.error(typeof error.response?.data === 'string' ? error.response.data : 'Could not cancel the order', { autoClose: 1200, theme: 'colored' })
+        } finally {
+            setCancelling(false)
+            setOrderToCancel(null)
+        }
+    }
 
     if (!authToken) {
         return <EmptyState icon={<AiOutlineLogin />} title='Please login to see your orders' actionLabel='Login' actionTo='/login' />
@@ -69,7 +91,7 @@ const Orders = () => {
                             <p className='order__label'>Order ID</p>
                             <p>#{order._id.slice(-8).toUpperCase()}</p>
                         </div>
-                        <Chip label={order.status || 'Placed'} color='success' size='small' />
+                        <Chip label={order.status || 'Placed'} color={statusColors[order.status || 'Placed'] || 'default'} size='small' />
                     </div>
 
                     {order.productData.map(item => item.productId && (
@@ -92,8 +114,31 @@ const Orders = () => {
                             Delivering to {order.userData.firstName} — {order.userData.address}, {order.userData.city}, {order.userData.userState} {order.userData.zipCode}
                         </p>
                     )}
+
+                    {(order.status || 'Placed') === 'Placed' && (
+                        <div className='order__actions'>
+                            <Button variant='outlined' color='error' size='small' onClick={() => setOrderToCancel(order)}>
+                                Cancel Order
+                            </Button>
+                        </div>
+                    )}
                 </div>
             ))}
+
+            <Dialog open={Boolean(orderToCancel)} onClose={() => !cancelling && setOrderToCancel(null)}>
+                <DialogTitle>Cancel this order?</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Order #{orderToCancel?._id.slice(-8).toUpperCase()} will be cancelled. This cannot be undone.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={() => setOrderToCancel(null)} disabled={cancelling}>Keep Order</Button>
+                    <Button variant='contained' color='error' onClick={cancelOrder} disabled={cancelling}>
+                        {cancelling ? 'Cancelling...' : 'Cancel Order'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 }

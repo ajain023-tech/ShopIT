@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
@@ -49,6 +50,28 @@ router.get('/getPreviousOrders', authUser, async (req, res) => {
     try {
         const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
         res.send(orders);
+    } catch (error) {
+        res.status(500).send("Something went wrong");
+    }
+});
+
+// cancel an order of the logged in user while it is still "Placed"
+router.put('/cancel/:id', authUser, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).send("Order not found");
+        }
+        const order = await Order.findOne({ _id: id, user: req.user.id });
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
+        if (order.status !== 'Placed') {
+            return res.status(400).send("This order can no longer be cancelled");
+        }
+        order.status = 'Cancelled';
+        await order.save();
+        res.send(order);
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
