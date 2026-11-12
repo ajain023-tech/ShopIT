@@ -67,6 +67,8 @@ const HomePage = () => {
     .filter(Boolean)
   const trending = [...products].sort((a, b) => b.rating - a.rating).slice(0, PRODUCTS_PER_ROW)
   const bestDeals = [...products].sort((a, b) => getDiscountPercent(b) - getDiscountPercent(a)).slice(0, PRODUCTS_PER_ROW)
+  // MongoDB ids grow over time, so the biggest ids are the newest products
+  const newArrivals = [...products].sort((a, b) => (a._id < b._id ? 1 : a._id > b._id ? -1 : 0)).slice(0, PRODUCTS_PER_ROW)
 
   return (
     <div className='home'>
@@ -123,6 +125,11 @@ const HomePage = () => {
       <section className='home-section'>
         <SectionHeader title='Best Deals' subtitle='Biggest discounts right now' to='/products?sort=discount' />
         <ProductRow products={bestDeals} loading={loading} />
+      </section>
+
+      <section className='home-section'>
+        <SectionHeader title='New Arrivals' subtitle='Just added to the store' to='/products' />
+        <ProductRow products={newArrivals} loading={loading} />
       </section>
     </div>
   )
