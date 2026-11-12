@@ -42,21 +42,42 @@ const contactInfo = [
   },
 ];
 
+// ─── Validation ──────────────────────────────────────────────────────────────
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// returns an object with an error message for every invalid field
+const validate = (form) => {
+  const errors = {};
+  if (form.name.trim().length < 2) errors.name = 'Name must be at least 2 characters';
+  if (!form.email.trim()) errors.email = 'Email is required';
+  else if (!emailRegex.test(form.email.trim())) errors.email = 'Please enter a valid email';
+  if (form.subject.trim().length < 3) errors.subject = 'Subject must be at least 3 characters';
+  if (form.message.trim().length < 10) errors.message = 'Message must be at least 10 characters';
+  return errors;
+};
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const Contact = () => {
   usePageTitle('Contact Us')
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    // clear the error of this field while the user types
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.subject || !form.message) {
-      toast.error('Please fill in all fields.');
+    const newErrors = validate(form);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error('Please fix the errors in the form.', { autoClose: 1000, theme: 'colored' });
       return;
     }
     setLoading(true);
@@ -64,6 +85,7 @@ const Contact = () => {
       setLoading(false);
       toast.success('Message sent! We will get back to you soon.', { autoClose: 4000 });
       setForm({ name: '', email: '', subject: '', message: '' });
+      setErrors({});
     }, 1000);
   };
 
@@ -244,6 +266,8 @@ const Contact = () => {
                       name="name"
                       value={form.name}
                       onChange={handleChange}
+                      error={Boolean(errors.name)}
+                      helperText={errors.name}
                       sx={fieldSx}
                     />
                   </Grid>
@@ -255,6 +279,8 @@ const Contact = () => {
                       type="email"
                       value={form.email}
                       onChange={handleChange}
+                      error={Boolean(errors.email)}
+                      helperText={errors.email}
                       sx={fieldSx}
                     />
                   </Grid>
@@ -265,6 +291,8 @@ const Contact = () => {
                       name="subject"
                       value={form.subject}
                       onChange={handleChange}
+                      error={Boolean(errors.subject)}
+                      helperText={errors.subject}
                       sx={fieldSx}
                     />
                   </Grid>
@@ -277,6 +305,8 @@ const Contact = () => {
                       rows={5}
                       value={form.message}
                       onChange={handleChange}
+                      error={Boolean(errors.message)}
+                      helperText={errors.message}
                       sx={fieldSx}
                     />
                   </Grid>
