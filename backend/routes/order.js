@@ -10,10 +10,17 @@ const FREE_SHIPPING_ABOVE = 999;
 const SHIPPING_CHARGE = 99;
 const getShippingCharge = (itemsTotal) => itemsTotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_CHARGE;
 
+// coupon SAVE10: 10% off the items, at most ₹500
+const COUPON_CODE = 'SAVE10';
+const getCouponDiscount = (itemsTotal, code) =>
+    String(code || '').trim().toUpperCase() === COUPON_CODE
+        ? Math.min(Math.round(itemsTotal * 0.1), 500)
+        : 0;
+
 // place an order with everything in the user's cart, then empty the cart
 router.post('/placeorder', authUser, async (req, res) => {
     try {
-        const { userDetails } = req.body;
+        const { userDetails, couponCode } = req.body;
         const cartItems = await Cart.find({ user: req.user.id })
             .populate("productId", "name price originalPrice image rating type brand category");
 
@@ -29,13 +36,17 @@ router.post('/placeorder', authUser, async (req, res) => {
         const itemsTotal = validItems.reduce(
             (sum, item) => sum + item.productId.price * item.quantity, 0);
         const shippingCharge = getShippingCharge(itemsTotal);
+        // the discount is always calculated here, never taken from the frontend
+        const couponDiscount = getCouponDiscount(itemsTotal, couponCode);
 
         const order = await Order.create({
             user: req.user.id,
             productData: validItems.map(item => item.toObject()),
             userData: userDetails,
-            totalAmount: itemsTotal + shippingCharge,
+            totalAmount: itemsTotal + shippingCharge - couponDiscount,
             shippingCharge,
+            couponCode: couponDiscount > 0 ? COUPON_CODE : '',
+            couponDiscount,
         });
 
         await Cart.deleteMany({ user: req.user.id });

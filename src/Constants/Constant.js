@@ -24,20 +24,30 @@ const FREE_SHIPPING_ABOVE = 999
 const SHIPPING_CHARGE = 99
 const getShippingCharge = (itemsTotal) => (itemsTotal === 0 || itemsTotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_CHARGE)
 
+// coupon SAVE10: 10% off the items, at most ₹500 (same rule as the backend)
+const COUPON_CODE = 'SAVE10'
+const COUPON_PERCENT = 10
+const COUPON_MAX_DISCOUNT = 500
+const isValidCoupon = (code) => String(code || '').trim().toUpperCase() === COUPON_CODE
+const getCouponDiscount = (itemsTotal, coupon) =>
+    isValidCoupon(coupon) ? Math.min(Math.round(itemsTotal * COUPON_PERCENT / 100), COUPON_MAX_DISCOUNT) : 0
+
 // totals for a list of cart items
-const getCartTotals = (cartItems) => {
+const getCartTotals = (cartItems, coupon = '') => {
     const items = cartItems.filter(item => item.productId)
     const itemsTotal = items.reduce((sum, item) => sum + item.productId.price * item.quantity, 0)
     const mrpTotal = items.reduce((sum, item) =>
         sum + Math.max(item.productId.originalPrice || 0, item.productId.price) * item.quantity, 0)
     const shipping = getShippingCharge(itemsTotal)
+    const couponDiscount = getCouponDiscount(itemsTotal, coupon)
     return {
         itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
         itemsTotal,
         mrpTotal,
         savings: mrpTotal - itemsTotal,
         shipping,
-        total: itemsTotal + shipping,
+        couponDiscount,
+        total: itemsTotal + shipping - couponDiscount,
     }
 }
 
@@ -101,5 +111,6 @@ const Transition = forwardRef(function Transition(props, ref) {
 
 export {
     getCart, getWishList, handleClickOpen, handleClose, handleLogOut, getAllProducts, getSingleProduct, Transition,
-    FREE_SHIPPING_ABOVE, getShippingCharge, getCartTotals, addToCart
+    FREE_SHIPPING_ABOVE, getShippingCharge, getCartTotals, addToCart,
+    COUPON_CODE, isValidCoupon
 }

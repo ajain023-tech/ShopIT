@@ -82,6 +82,9 @@ const Orders = () => {
                         <div>
                             <p className='order__label'>Total</p>
                             <p>{formatPrice(order.totalAmount)}</p>
+                            {order.couponDiscount > 0 && (
+                                <p className='order__coupon'>{order.couponCode} − {formatPrice(order.couponDiscount)}</p>
+                            )}
                         </div>
                         <div>
                             <p className='order__label'>Payment</p>

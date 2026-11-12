@@ -23,6 +23,14 @@ const OrderSchema = new Schema({
         type: Number,
         default: 0,
     },
+    couponCode: {
+        type: String,
+        default: '',
+    },
+    couponDiscount: {
+        type: Number,
+        default: 0,
+    },
     paymentMethod: {
         type: String,
         default: 'Cash on Delivery',

@@ -17,7 +17,8 @@ import { addToCart, getCartTotals } from '../../Constants/Constant'
 import './Cart.css'
 
 const Cart = () => {
-    const { cart, setCart } = useContext(ContextFunction)
+    usePageTitle('Cart')
+    const { cart, setCart, coupon } = useContext(ContextFunction)
     const { addToWishlist } = useWishlist()
     const { isOverBudget } = useBudget()
     const [swappingId, setSwappingId] = useState(null)
@@ -106,7 +107,7 @@ const Cart = () => {
     }
 
     const cartItems = cart.filter(item => item.productId)
-    const totals = getCartTotals(cartItems)
+    const totals = getCartTotals(cartItems, coupon)
 
     if (cartItems.length === 0) {
         return (

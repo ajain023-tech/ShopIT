@@ -25,7 +25,8 @@ const addressFields = [
 ]
 
 const CheckoutForm = () => {
-    const { cart, setCart } = useContext(ContextFunction)
+    usePageTitle('Checkout')
+    const { cart, setCart, coupon, setCoupon } = useContext(ContextFunction)
     const [activeStep, setActiveStep] = useState(0)
     const [loading, setLoading] = useState(true)
     const [placingOrder, setPlacingOrder] = useState(false)
@@ -73,7 +74,7 @@ const CheckoutForm = () => {
     }, [])
 
     const cartItems = cart.filter(item => item.productId)
-    const totals = getCartTotals(cartItems)
+    const totals = getCartTotals(cartItems, coupon)
 
     const handleOnchange = (e) => {
         setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
@@ -100,9 +101,10 @@ const CheckoutForm = () => {
     const placeOrder = async () => {
         try {
             setPlacingOrder(true)
-            const { data } = await axios.post(`${process.env.REACT_APP_PLACE_ORDER}`, { userDetails }, headers)
+            const { data } = await axios.post(`${process.env.REACT_APP_PLACE_ORDER}`, { userDetails, couponCode: coupon }, headers)
             setActiveStep(2)
             setCart([])
+            setCoupon('')
             navigate(`/ordersuccess?order=${data._id}`)
         } catch (error) {
             toast.error(error.response?.data || 'Could not place order', { autoClose: 1500, theme: 'colored' })

@@ -30,6 +30,12 @@
     text-transform: uppercase;
 }
 
+.order__coupon {
+    font-size: 12px;
+    font-weight: 500;
+    color: #2e7d32;
+}
+
 .order__id {
     margin-left: auto;
 }

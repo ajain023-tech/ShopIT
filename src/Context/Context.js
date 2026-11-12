@@ -18,6 +18,7 @@ const Context = ({ children }) => {
     const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true')
     const [compareList, setCompareList] = useState(loadCompareList)
     const [budget, setBudget] = useState(0)
+    const [coupon, setCoupon] = useState('')
 
     // keep the compare list after a page refresh
     useEffect(() => {
@@ -35,6 +36,7 @@ const Context = ({ children }) => {
             darkMode, setDarkMode,
             compareList, setCompareList,
             budget, setBudget,
+            coupon, setCoupon,
         }}>
             {children}
         </ContextFunction.Provider>
