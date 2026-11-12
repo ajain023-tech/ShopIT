@@ -14,10 +14,18 @@
     padding: 80px 0;
 }
 
+.wishlist__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
 .wishlist__title {
     font-size: 24px;
     font-weight: 700;
-    margin-bottom: 18px;
 }
 
 .wishlist__title span {
