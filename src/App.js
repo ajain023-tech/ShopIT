@@ -16,6 +16,7 @@ import OrderSuccess from './Pages/Payment/OrderSuccess';
 import Orders from './Pages/Orders/Orders';
 import Compare from './Pages/Compare/Compare';
 import CompareBar from './Components/Compare/CompareBar';
+import ScrollTop from './Components/ScrollTop/ScrollTop';
 import { Flip, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CheckoutForm from './Components/Checkout/CheckoutForm';
@@ -60,6 +61,7 @@ function App() {
           </Routes>
         </div>
         <CompareBar />
+        <ScrollTop />
         <MobileNavigation />
         <Footer />
       </Router>
