@@ -182,3 +182,14 @@ body.dark-mode .budget__status {
 body.dark-mode .savings__row {
     border-color: #334155;
 }
+
+.budget__almost {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff6f00;
+}
+
+body.dark-mode .budget__almost {
+    color: #fb923c;
+}

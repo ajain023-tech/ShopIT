@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, LinearProgress, TextField } from '@mui/material'
 import { MdAccountBalanceWallet, MdEdit } from 'react-icons/md'
 import { toast } from 'react-toastify'
@@ -7,6 +7,25 @@ import { formatPrice } from '../../Helpers/price'
 import './Budget.css'
 
 const QUICK_BUDGETS = [1000, 2500, 5000, 10000]
+const ALERT_KEY = 'shopIt_budgetAlert'
+const ALERT_PERCENT = 80
+
+// the budget value the 80% alert was last shown for (once per budget)
+const getAlertedBudget = () => {
+    try {
+        return sessionStorage.getItem(ALERT_KEY)
+    } catch (error) {
+        return null
+    }
+}
+
+const setAlertedBudget = (budget) => {
+    try {
+        sessionStorage.setItem(ALERT_KEY, String(budget))
+    } catch (error) {
+        // storage not available, the alert may show again
+    }
+}
 
 // Smart Budget card: set a budget and see how much of it the cart uses
 const BudgetCard = () => {
@@ -14,6 +33,16 @@ const BudgetCard = () => {
     const [editing, setEditing] = useState(false)
     const [value, setValue] = useState('')
     const [saving, setSaving] = useState(false)
+
+    // warn once when the cart reaches 80% of the budget
+    useEffect(() => {
+        if (!hasBudget || percentUsed < ALERT_PERCENT) return
+        if (getAlertedBudget() === String(budget)) return
+        setAlertedBudget(budget)
+        toast.warning(`You have used ${ALERT_PERCENT}% of your budget`, { autoClose: 1500, theme: 'colored' })
+    }, [percentUsed, hasBudget, budget])
+
+    const almostThere = hasBudget && !isOverBudget && percentUsed >= ALERT_PERCENT && remaining > 0
 
     const handleSave = async (amount) => {
         const number = Number(amount)
@@ -82,6 +111,9 @@ const BudgetCard = () => {
                     ? <>You are <b>{formatPrice(-remaining)} over</b> your budget. Try the cheaper options below.</>
                     : <>You can still spend <b>{formatPrice(remaining)}</b>.</>}
             </p>
+            {almostThere && (
+                <p className='budget__almost'>Almost there — only {formatPrice(remaining)} left</p>
+            )}
         </div>
     )
 }
