@@ -11,6 +11,7 @@ import {
 import { MdEmail, MdPhone, MdLocationOn, MdSend } from 'react-icons/md';
 import { FaGithub } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import usePageTitle from '../../Hooks/usePageTitle';
 
 // ─── Contact Info Data ────────────────────────────────────────────────────────
 
@@ -44,6 +45,7 @@ const contactInfo = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const Contact = () => {
+  usePageTitle('Contact Us')
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [loading, setLoading] = useState(false);
 

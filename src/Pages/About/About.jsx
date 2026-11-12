@@ -8,6 +8,7 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
+import usePageTitle from '../../Hooks/usePageTitle';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ const stats = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const About = () => {
+  usePageTitle('About Us')
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f7fa', pb: 6 }}>
 

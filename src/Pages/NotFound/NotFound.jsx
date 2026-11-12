@@ -4,8 +4,10 @@ import { Button } from '@mui/material'
 import { AiOutlineHome } from 'react-icons/ai'
 import { MdStorefront } from 'react-icons/md'
 import './NotFound.css'
+import usePageTitle from '../../Hooks/usePageTitle'
 
 const NotFound = () => {
+    usePageTitle('Page not found')
     return (
         <div className='not-found'>
             <div className='not-found__card'>
