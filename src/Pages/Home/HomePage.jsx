@@ -12,6 +12,17 @@ import { Books, Jewelry } from '../../Assets/Images/Image'
 import './HomePage.css'
 
 const PRODUCTS_PER_ROW = 8
+const RECENT_KEY = 'shopIt_recent'
+
+// ids of the products the user opened most recently (newest first)
+const getRecentIds = () => {
+  try {
+    const ids = JSON.parse(localStorage.getItem(RECENT_KEY))
+    return Array.isArray(ids) ? ids : []
+  } catch (error) {
+    return []
+  }
+}
 
 const promises = [
   { icon: <MdLocalShipping />, title: 'Free Delivery', text: 'On orders above ₹999' },
@@ -51,6 +62,9 @@ const HomePage = () => {
     })
   }, [])
 
+  const recentlyViewed = getRecentIds()
+    .map(id => products.find(product => product._id === id))
+    .filter(Boolean)
   const trending = [...products].sort((a, b) => b.rating - a.rating).slice(0, PRODUCTS_PER_ROW)
   const bestDeals = [...products].sort((a, b) => getDiscountPercent(b) - getDiscountPercent(a)).slice(0, PRODUCTS_PER_ROW)
 
@@ -76,6 +90,13 @@ const HomePage = () => {
           {categories.map(category => <CategoryCard data={category} key={category.name} />)}
         </div>
       </section>
+
+      {recentlyViewed.length > 0 && (
+        <section className='home-section'>
+          <SectionHeader title='Recently Viewed' subtitle='Pick up where you left off' />
+          <ProductRow products={recentlyViewed} loading={false} />
+        </section>
+      )}
 
       <section className='home-section'>
         <SectionHeader title='Trending Now' subtitle='Top rated by our customers' to='/products?sort=rating' />

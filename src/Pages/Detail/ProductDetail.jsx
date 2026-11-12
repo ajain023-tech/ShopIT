@@ -19,6 +19,19 @@ import { typeLabels } from '../../SingleCategory/SingleCategory'
 
 const MAX_QUANTITY = 5
 const SIMILAR_COUNT = 8
+const RECENT_KEY = 'shopIt_recent'
+const MAX_RECENT = 8
+
+// remember the products the user opened, newest first, no duplicates
+const saveRecentlyViewed = (productId) => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(RECENT_KEY)) || []
+        const recent = [productId, ...saved.filter(savedId => savedId !== productId)].slice(0, MAX_RECENT)
+        localStorage.setItem(RECENT_KEY, JSON.stringify(recent))
+    } catch (error) {
+        // storage not available, recently viewed just won't be saved
+    }
+}
 
 // expected delivery date, 4 days from today
 const getDeliveryDate = () => {
@@ -54,6 +67,7 @@ const ProductDetail = () => {
             try {
                 const { data } = await axios.get(`${process.env.REACT_APP_FETCH_PRODUCT}/${id}`)
                 setProduct(data)
+                if (data && data._id) saveRecentlyViewed(data._id)
             } catch (error) {
                 setProduct(null)
             } finally {
