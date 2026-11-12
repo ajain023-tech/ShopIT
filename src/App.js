@@ -22,6 +22,7 @@ import CheckoutForm from './Components/Checkout/CheckoutForm';
 import UpdateDetails from './Pages/Update_User/UpdateDetails';
 import About from './Pages/About/About';
 import Contact from './Pages/Contact/Contact';
+import NotFound from './Pages/NotFound/NotFound';
 
 function App() {
   const { darkMode } = useContext(ContextFunction)
@@ -55,6 +56,7 @@ function App() {
             <Route path='/compare' element={<Compare />} />
             <Route path='/about' element={<About />} />
             <Route path='/contact' element={<Contact />} />
+            <Route path='*' element={<NotFound />} />
           </Routes>
         </div>
         <CompareBar />
