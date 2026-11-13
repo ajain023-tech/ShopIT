@@ -39,8 +39,9 @@ function App() {
     <>
       <ToastContainer toastClassName='toastContainerBox' transition={Flip} position='top-center' />
       <Router>
+        <a href='#main-content' className='skip-link'>Skip to content</a>
         <DesktopNavigation />
-        <div className="margin">
+        <main className="margin" id='main-content' tabIndex={-1}>
           <Routes>
             <Route path='/' index element={<HomePage />} />
             <Route path="/login" element={<Login />} />
@@ -59,7 +60,7 @@ function App() {
             <Route path='/contact' element={<Contact />} />
             <Route path='*' element={<NotFound />} />
           </Routes>
-        </div>
+        </main>
         <CompareBar />
         <ScrollTop />
         <MobileNavigation />

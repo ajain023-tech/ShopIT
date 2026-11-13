@@ -27,14 +27,14 @@ const MobileNavigation = () => {
 
     return (
         <div className='showMobile'>
-            <nav className='mobile-nav'>
+            <nav className='mobile-nav' aria-label='Mobile'>
                 <NavLink to='/' end className='mobile-nav__link'><AiOutlineHome /><span>Home</span></NavLink>
                 <NavLink to='/products' className='mobile-nav__link'><AiOutlineAppstore /><span>Shop</span></NavLink>
-                <NavLink to='/cart' className='mobile-nav__link'>
+                <NavLink to='/cart' className='mobile-nav__link' aria-label={`Cart, ${cartCount} items`}>
                     <Badge badgeContent={cartCount} color='secondary'><AiOutlineShoppingCart /></Badge>
                     <span>Cart</span>
                 </NavLink>
-                <NavLink to='/wishlist' className='mobile-nav__link'>
+                <NavLink to='/wishlist' className='mobile-nav__link' aria-label={`Wishlist, ${setProceed ? wishlistData.length : 0} items`}>
                     <Badge badgeContent={setProceed ? wishlistData.length : 0} color='secondary'><AiOutlineHeart /></Badge>
                     <span>Wishlist</span>
                 </NavLink>

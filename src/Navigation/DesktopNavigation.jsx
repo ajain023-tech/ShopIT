@@ -48,9 +48,9 @@ const DesktopNavigation = () => {
       <header className='header'>
         <OfferStrip />
 
-        <nav className='nav'>
-          <Link to='/' className='logo'>
-            <FaShoppingBag className='logo__icon' />
+        <nav className='nav' aria-label='Main'>
+          <Link to='/' className='logo' aria-label='ShopIt home'>
+            <FaShoppingBag className='logo__icon' aria-hidden='true' />
             <span>ShopIt</span>
           </Link>
 
@@ -83,15 +83,15 @@ const DesktopNavigation = () => {
               </NavLink>
             )}
 
-            <NavLink to='/wishlist' className='nav__action'>
-              <Badge badgeContent={setProceed ? wishlistData.length : 0} color='secondary'>
+            <NavLink to='/wishlist' className='nav__action' aria-label={`Wishlist, ${setProceed ? wishlistData.length : 0} items`}>
+              <Badge badgeContent={setProceed ? wishlistData.length : 0} color='secondary' aria-hidden='true'>
                 <AiOutlineHeart />
               </Badge>
               <span>Wishlist</span>
             </NavLink>
 
-            <NavLink to='/cart' className='nav__action'>
-              <Badge badgeContent={cartCount} color='secondary'>
+            <NavLink to='/cart' className='nav__action' aria-label={`Cart, ${cartCount} items`}>
+              <Badge badgeContent={cartCount} color='secondary' aria-hidden='true'>
                 <AiOutlineShoppingCart />
               </Badge>
               <span>Cart</span>
@@ -106,7 +106,7 @@ const DesktopNavigation = () => {
           </div>
         </nav>
 
-        <div className='category-bar'>
+        <nav className='category-bar' aria-label='Categories'>
           {categoryLinks.map(link => (
             <NavLink key={link.to} to={link.to} end className='category-bar__link'>
               {link.label}
@@ -115,7 +115,7 @@ const DesktopNavigation = () => {
           <NavLink to='/compare' className='category-bar__link category-bar__compare'>
             Compare{compareList.length > 0 ? ` (${compareList.length})` : ''}
           </NavLink>
-        </div>
+        </nav>
       </header>
 
       <Dialog
