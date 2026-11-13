@@ -10,6 +10,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { ContextFunction } from '../../Context/Context'
 import ProductCard from '../../Components/Card/Product Card/ProductCard'
+import PriceHistory from '../../Components/PriceHistory/PriceHistory'
 import { Transition, addToCart, FREE_SHIPPING_ABOVE } from '../../Constants/Constant'
 import useWishlist from '../../Hooks/useWishlist'
 import useCompare from '../../Hooks/useCompare'
@@ -275,6 +276,8 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <PriceHistory productId={product._id} />
 
             {similarProducts.length > 0 && (
                 <section className='detail__similar'>
