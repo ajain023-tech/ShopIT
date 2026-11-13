@@ -1,0 +1,131 @@
+.price-alerts {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+}
+
+.price-alerts a {
+    color: inherit;
+}
+
+.price-alerts__title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.price-alerts__subtitle {
+    margin-bottom: 16px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.price-alerts__subtitle b {
+    color: #2e7d32;
+}
+
+.price-alerts__list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.price-alert {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    background: #fff;
+    border-radius: 14px;
+    border-left: 4px solid transparent;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.price-alert--reached {
+    border-left-color: #2e7d32;
+}
+
+.price-alert__image img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.price-alert__info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.price-alert__name {
+    font-weight: 600;
+}
+
+.price-alert__prices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.price-alert__prices b {
+    color: #1f2937;
+}
+
+.price-alert__status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.price-alert__drop {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.price-alert__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+@media (max-width: 640px) {
+    .price-alert {
+        grid-template-columns: 72px 1fr;
+        padding: 12px;
+    }
+
+    .price-alert__image img {
+        width: 72px;
+        height: 72px;
+    }
+
+    .price-alert__actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+body.dark-mode .price-alert {
+    background: #1e293b;
+}
+
+body.dark-mode .price-alerts__subtitle,
+body.dark-mode .price-alert__prices {
+    color: #94a3b8;
+}
+
+body.dark-mode .price-alert__prices b {
+    color: #e2e8f0;
+}
+
+body.dark-mode .price-alert__drop,
+body.dark-mode .price-alerts__subtitle b {
+    color: #86efac;
+}
