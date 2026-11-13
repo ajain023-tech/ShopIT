@@ -9,6 +9,7 @@ const cart = require('./routes/cart')
 const wishlist = require('./routes/wishlist')
 const product = require('./routes/product')
 const order = require('./routes/order')
+const price = require('./routes/price')
 const dotenv = require('dotenv');
 const checkOrigin = require('./middleware/apiAuth');
 dotenv.config()
@@ -42,6 +43,8 @@ app.use('/api/cart', cart)
 app.use('/api/wishlist', wishlist)
 
 app.use('/api/order', order)
+
+app.use('/api/price', price)
 
 app.listen(port, () => {
     console.log(`E-commerce backend listening at http://localhost:${port}`)

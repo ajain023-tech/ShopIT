@@ -1,6 +1,10 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Product = require('./models/Product');
+const PriceHistory = require('./models/PriceHistory');
+const PriceAlert = require('./models/PriceAlert');
+const PriceNotification = require('./models/PriceNotification');
+const { buildSampleHistory } = require('./helpers/priceTracker');
 
 const products = [
 
@@ -642,9 +646,13 @@ async function seed() {
 
   // Delete all existing products and re-insert fresh with images
   await Product.deleteMany({});
-  await Product.insertMany(catalog);
+  const inserted = await Product.insertMany(catalog);
 
-  console.log(`Catalog seeded: ${products.length} products inserted with real images.`);
+  // product ids change on every seed, so old price data no longer matches any product
+  await Promise.all([PriceHistory.deleteMany({}), PriceAlert.deleteMany({}), PriceNotification.deleteMany({})]);
+  await PriceHistory.insertMany(inserted.flatMap((product, index) => buildSampleHistory(product, index)));
+
+  console.log(`Catalog seeded: ${products.length} products inserted with real images and 90 days of price history.`);
   await mongoose.disconnect();
 }
 
