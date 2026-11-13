@@ -147,7 +147,11 @@
         max-width: none;
     }
 
-    .nav__actions .nav__action:not(.nav__theme) {
+    .nav__actions .nav__action:not(.nav__theme):not(.nav__bell) {
+        display: none;
+    }
+
+    .nav__bell-label {
         display: none;
     }
 

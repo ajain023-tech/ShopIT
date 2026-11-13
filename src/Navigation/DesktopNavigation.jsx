@@ -12,6 +12,7 @@ import { toast } from 'react-toastify'
 import { getCart, getWishList, handleLogOut, handleClickOpen, handleClose, Transition } from '../Constants/Constant'
 import OfferStrip from './OfferStrip'
 import SearchBar from '../Components/SearchBar/SearchBar'
+import NotificationBell from '../Components/Notifications/NotificationBell'
 
 export const categoryLinks = [
   { label: 'All Products', to: '/products' },
@@ -64,6 +65,8 @@ const DesktopNavigation = () => {
                 {darkMode ? <MdLightMode /> : <MdDarkMode />}
               </button>
             </Tooltip>
+
+            <NotificationBell />
 
             {setProceed ? (
               <>
