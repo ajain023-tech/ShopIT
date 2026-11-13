@@ -219,6 +219,36 @@ const Compare = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* phones: one card per product instead of the wide table */}
+            <div className='compare-cards'>
+                {compareList.map(p => (
+                    <div className='compare-card' key={p._id}>
+                        <div className='compare-card__top'>
+                            <Link to={`/Detail/type/${p.type}/${p._id}`}>
+                                <img src={p.image} alt={p.name} />
+                            </Link>
+                            <div className='compare-card__title'>
+                                <Link to={`/Detail/type/${p.type}/${p._id}`} className='compare-table__name'>{p.name}</Link>
+                                <Button variant='contained' size='small' onClick={() => handleAddToCart(p)} disabled={addingId === p._id}>
+                                    Add to Cart
+                                </Button>
+                            </div>
+                            <button className='compare-table__remove compare-card__remove' onClick={() => removeFromCompare(p._id)} aria-label={`Remove ${p.name} from compare`}>
+                                <AiOutlineClose />
+                            </button>
+                        </div>
+                        <dl className='compare-card__rows'>
+                            {rows.map(row => (
+                                <div key={row.label} className={`compare-card__row ${compareList.length > 1 && row.highlight(p) ? 'compare-best' : ''}`}>
+                                    <dt>{row.label}</dt>
+                                    <dd>{row.render(p)}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
