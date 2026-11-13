@@ -1,5 +1,7 @@
 const express = require('express');
 const jwt = require("jsonwebtoken");
+// logins stay valid for 7 days, after that the user has to login again
+const TOKEN_EXPIRES_IN = '7d';
 const User = require('../models/User');
 const router = express.Router();
 const bcrypt = require('bcrypt');
@@ -54,7 +56,7 @@ router.post('/register', [
             }
         }
         success = true
-        const authToken = jwt.sign(data, process.env.JWT_SECRET)
+        const authToken = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN })
         res.send({ success, authToken })
     }
     catch (error) {
@@ -93,7 +95,7 @@ router.post('/login', [
             }
         }
 
-        const authToken = jwt.sign(data, process.env.JWT_SECRET)
+        const authToken = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN })
         success = true
         res.send({ success, authToken })
     }
