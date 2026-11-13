@@ -16,6 +16,8 @@ const SearchBar = () => {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showResults, setShowResults] = useState(false);
+    // index of the suggestion picked with the arrow keys (-1 = none)
+    const [activeIndex, setActiveIndex] = useState(-1);
     const navigate = useNavigate();
     const boxRef = useRef(null);
 
@@ -34,10 +36,21 @@ const SearchBar = () => {
 
     const term = searchTerm.trim().toLowerCase();
     const results = term ? products.filter(product => matchesSearch(product, term)) : [];
+    const suggestions = results.slice(0, MAX_SUGGESTIONS);
+
+    const openProduct = (product) => {
+        setSearchTerm('');
+        setShowResults(false);
+        setActiveIndex(-1);
+        navigate(`/Detail/type/${product.type}/${product._id}`);
+    };
 
     const goToResults = (e) => {
         e.preventDefault();
         if (!term) return;
+        if (showResults && activeIndex >= 0 && suggestions[activeIndex]) {
+            return openProduct(suggestions[activeIndex]);
+        }
         setShowResults(false);
         navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
     };
@@ -45,6 +58,21 @@ const SearchBar = () => {
     const clearSearch = () => {
         setSearchTerm('');
         setShowResults(false);
+        setActiveIndex(-1);
+    };
+
+    // arrow keys move through the suggestions, Escape closes the dropdown
+    const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+            setShowResults(false);
+            setActiveIndex(-1);
+            return;
+        }
+        if (!suggestions.length || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return;
+        e.preventDefault();
+        setShowResults(true);
+        const step = e.key === 'ArrowDown' ? 1 : -1;
+        setActiveIndex(prev => (prev + step + suggestions.length) % suggestions.length);
     };
 
     return (
@@ -55,8 +83,13 @@ const SearchBar = () => {
                     className='search__input'
                     placeholder='Search for products, brands and more'
                     value={searchTerm}
-                    onChange={(e) => { setSearchTerm(e.target.value); setShowResults(true); }}
+                    onChange={(e) => { setSearchTerm(e.target.value); setShowResults(true); setActiveIndex(-1); }}
                     onFocus={() => setShowResults(true)}
+                    onKeyDown={handleKeyDown}
+                    role='combobox'
+                    aria-expanded={Boolean(showResults && term)}
+                    aria-controls='search-suggestions'
+                    aria-activedescendant={activeIndex >= 0 ? `search-option-${activeIndex}` : undefined}
                 />
                 <button type='submit' className='search__button' aria-label='Search'>
                     <AiOutlineSearch />
@@ -64,17 +97,21 @@ const SearchBar = () => {
             </form>
 
             {showResults && term && (
-                <div className='search__results'>
+                <div className='search__results' id='search-suggestions' role='listbox'>
                     {results.length === 0 ? (
                         <p className='search__empty'>No products found for "{searchTerm}"</p>
                     ) : (
                         <>
-                            {results.slice(0, MAX_SUGGESTIONS).map(product => (
+                            {suggestions.map((product, index) => (
                                 <Link
                                     key={product._id}
+                                    id={`search-option-${index}`}
+                                    role='option'
+                                    aria-selected={index === activeIndex}
                                     to={`/Detail/type/${product.type}/${product._id}`}
-                                    className='search__item'
+                                    className={`search__item ${index === activeIndex ? 'search__item--active' : ''}`}
                                     onClick={clearSearch}
+                                    onMouseEnter={() => setActiveIndex(index)}
                                 >
                                     <img src={product.image} alt={product.name} />
                                     <div>
