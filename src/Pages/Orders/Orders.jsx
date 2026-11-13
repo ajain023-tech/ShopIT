@@ -118,13 +118,16 @@ const Orders = () => {
                         </p>
                     )}
 
-                    {(order.status || 'Placed') === 'Placed' && (
-                        <div className='order__actions'>
+                    <div className='order__actions'>
+                        <Button variant='outlined' size='small' component={Link} to={`/orders/${order._id}/invoice`}>
+                            Invoice
+                        </Button>
+                        {(order.status || 'Placed') === 'Placed' && (
                             <Button variant='outlined' color='error' size='small' onClick={() => setOrderToCancel(order)}>
                                 Cancel Order
                             </Button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             ))}
 
