@@ -100,7 +100,7 @@ const Contact = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f7fa', pb: 6 }}>
+    <Box className='info-page' sx={{ minHeight: '100vh', backgroundColor: '#f5f7fa', pb: 6 }}>
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <Box
