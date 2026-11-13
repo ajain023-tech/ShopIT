@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Breadcrumbs, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material'
 import { FiPackage } from 'react-icons/fi'
+import { MdSavings } from 'react-icons/md'
 import { AiOutlineLogin } from 'react-icons/ai'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -11,6 +12,16 @@ import '../Cart/Cart.css'
 import './Orders.css'
 
 const statusColors = { Placed: 'success', Cancelled: 'error' }
+
+// money saved on one order: MRP minus selling price of every item, plus the coupon discount
+const getOrderSaving = (order) => {
+    const itemSaving = order.productData.reduce((sum, item) => {
+        const product = item.productId
+        if (!product || !(product.originalPrice > product.price)) return sum
+        return sum + (product.originalPrice - product.price) * item.quantity
+    }, 0)
+    return itemSaving + (order.couponDiscount || 0)
+}
 
 const formatDate = (date) =>
     new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -64,6 +75,9 @@ const Orders = () => {
         return <EmptyState icon={<FiPackage />} title='No orders yet' message='When you place an order it will show up here.' />
     }
 
+    const activeOrders = orders.filter(order => order.status !== 'Cancelled')
+    const totalSaved = activeOrders.reduce((sum, order) => sum + getOrderSaving(order), 0)
+
     return (
         <div className='orders'>
             <Breadcrumbs sx={{ mb: 2, fontSize: 14 }}>
@@ -71,6 +85,15 @@ const Orders = () => {
                 <Typography fontSize={14} color='text.primary'>My Orders</Typography>
             </Breadcrumbs>
             <h1 className='orders__title'>My Orders</h1>
+
+            {totalSaved > 0 && (
+                <div className='orders__saved'>
+                    <MdSavings />
+                    <span>
+                        You have saved <b>{formatPrice(totalSaved)}</b> on {activeOrders.length} {activeOrders.length === 1 ? 'order' : 'orders'} with ShopIt 🎉
+                    </span>
+                </div>
+            )}
 
             {orders.map(order => (
                 <div className='order' key={order._id}>
