@@ -1,0 +1,90 @@
+.page {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    align-items: start;
+}
+
+.sidebar,
+.panel {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+}
+
+.avatar {
+    width: 76px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2, #312e81);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.name {
+    margin-top: 10px;
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.email {
+    font-size: 13px;
+    color: #6b7280;
+    word-break: break-all;
+    text-align: center;
+}
+
+.panel {
+    padding: 28px;
+}
+
+.heading {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.hint {
+    margin: 4px 0 20px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+@media (max-width: 800px) {
+    .page {
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        padding: 20px;
+    }
+}
+
+:global(body.dark-mode) .sidebar,
+:global(body.dark-mode) .panel {
+    background: #1e293b;
+}
+
+:global(body.dark-mode) .email,
+:global(body.dark-mode) .hint {
+    color: #94a3b8;
+}

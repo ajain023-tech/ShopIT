@@ -1,6 +1,6 @@
 import './Productsimilar.css'
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumbs, Button, Chip, Dialog, DialogActions, DialogContent, Skeleton, Typography } from '@mui/material'
 import { MdAddShoppingCart, MdLocalShipping, MdAssignmentReturn, MdPayments, MdVerifiedUser } from 'react-icons/md'
 import { AiFillHeart, AiOutlineHeart, AiOutlineShareAlt, AiFillStar, AiOutlineLogin, AiFillCloseCircle } from 'react-icons/ai'
@@ -16,6 +16,7 @@ import useCompare from '../../Hooks/useCompare'
 import useBudget from '../../Hooks/useBudget'
 import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../Helpers/price'
 import { typeLabels } from '../../SingleCategory/SingleCategory'
+import { getLoginPath } from '../../Helpers/redirect'
 import usePageTitle from '../../Hooks/usePageTitle'
 
 const MAX_QUANTITY = 5
@@ -46,6 +47,7 @@ const ProductDetail = () => {
     const { addToWishlist, removeFromWishlist, getWishlistItemByProductId, isInWishlist, wishlistLoading } = useWishlist()
     const { id, cat } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { isInCompare, toggleCompare, compareProducts } = useCompare()
     const { hasBudget, remaining } = useBudget()
 
@@ -296,7 +298,7 @@ const ProductDetail = () => {
                     <Typography variant='h6'>Please login to continue</Typography>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'space-evenly', pb: 2 }}>
-                    <Button component={Link} to='/login' variant='contained' endIcon={<AiOutlineLogin />}>Login</Button>
+                    <Button component={Link} to={getLoginPath(location)} variant='contained' endIcon={<AiOutlineLogin />}>Login</Button>
                     <Button variant='outlined' color='error' endIcon={<AiFillCloseCircle />} onClick={() => setOpenAlert(false)}>Close</Button>
                 </DialogActions>
             </Dialog>

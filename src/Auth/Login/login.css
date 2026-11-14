@@ -1,0 +1,154 @@
+.auth {
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 48px;
+}
+
+.auth__card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 960px;
+    min-height: 560px;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.auth__side {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-color: #1e3a5f;
+}
+
+.auth__side-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(25, 118, 210, 0.92), rgba(10, 25, 47, 0.75));
+}
+
+.auth__side-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+    padding: 40px;
+    color: #fff;
+}
+
+.auth__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff !important;
+}
+
+.auth__side-content h2 {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.auth__side-content ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth__side-content li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.auth__side-content li svg {
+    font-size: 22px;
+}
+
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+}
+
+.auth__form a {
+    color: #1976d2;
+    font-weight: 600;
+}
+
+.auth__title {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.auth__subtitle {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.auth__switch {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+@media (max-width: 800px) {
+    .auth__card {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+
+    .auth__side {
+        display: none;
+    }
+
+    .auth__form {
+        padding: 28px 22px;
+    }
+}
+
+body.dark-mode .auth__card {
+    background: #1e293b;
+}
+
+body.dark-mode .auth__subtitle {
+    color: #94a3b8;
+}
+
+/* password strength meter on the register page */
+.password-strength {
+  margin-top: 8px;
+}
+
+.password-strength__bar {
+  height: 6px !important;
+  border-radius: 4px;
+}
+
+.password-strength__label {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.password-strength__label--error {
+  color: #d32f2f;
+}
+
+.password-strength__label--warning {
+  color: #ed6c02;
+}
+
+.password-strength__label--success {
+  color: #2e7d32;
+}

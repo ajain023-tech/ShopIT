@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiFillHeart, AiOutlineHeart, AiFillStar } from 'react-icons/ai';
 import { MdAddShoppingCart } from 'react-icons/md';
 import { toast } from 'react-toastify';
@@ -8,10 +8,12 @@ import { ContextFunction } from '../../../Context/Context';
 import { addToCart } from '../../../Constants/Constant';
 import useCompare from '../../../Hooks/useCompare';
 import { formatPrice, getDiscountPercent, getOriginalPrice } from '../../../Helpers/price';
+import { getLoginPath } from '../../../Helpers/redirect';
 import styles from './ProductCard.module.css';
 
 export default function ProductCard({ prod, showWishlistAction = true, showCartAction = true }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { setCart } = useContext(ContextFunction);
     const [adding, setAdding] = useState(false);
     const { isInCompare, toggleCompare } = useCompare();
@@ -34,7 +36,7 @@ export default function ProductCard({ prod, showWishlistAction = true, showCartA
 
     const askToLogin = (message) => {
         toast.info(message, { autoClose: 900, theme: 'colored' });
-        navigate('/login');
+        navigate(getLoginPath(location));
     };
 
     const handleWishlistClick = async () => {
