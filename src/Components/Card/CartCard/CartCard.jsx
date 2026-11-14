@@ -36,11 +36,11 @@ const CartCard = ({ item, onQuantityChange, onRemove, onMoveToWishlist, updating
                         <button onClick={() => onQuantityChange(item, item.quantity + 1)} disabled={updating || item.quantity >= MAX_QUANTITY} aria-label='Increase quantity'>+</button>
                     </div>
                     {onMoveToWishlist && (
-                        <button className={styles.action} onClick={() => onMoveToWishlist(item)} disabled={updating}>
+                        <button className={styles.action} onClick={() => onMoveToWishlist(item)} disabled={updating} aria-label={`Move ${product.name} to wishlist`}>
                             <AiOutlineHeart /> Move to Wishlist
                         </button>
                     )}
-                    <button className={`${styles.action} ${styles.remove}`} onClick={() => onRemove(item)} disabled={updating}>
+                    <button className={`${styles.action} ${styles.remove}`} onClick={() => onRemove(item)} disabled={updating} aria-label={`Remove ${product.name} from cart`}>
                         <AiOutlineDelete /> Remove
                     </button>
                 </div>

@@ -190,6 +190,12 @@
     cursor: pointer;
 }
 
+/* keyboard users: show the button when anything in the card has focus */
+.card:focus-within .addToCart {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* on touch screens there is no hover, so always show the button */
 @media (hover: none) {
     .addToCart {

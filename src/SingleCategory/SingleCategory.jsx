@@ -281,7 +281,7 @@ const SingleCategory = () => {
             <div className='listing__layout'>
                 <aside className='listing__sidebar'>{filterPanel}</aside>
 
-                <main className='listing__main'>
+                <section className='listing__main' aria-label='Products'>
                     <div className='listing__toolbar'>
                         <div>
                             <h1 className='listing__title'>{title}</h1>
@@ -333,7 +333,7 @@ const SingleCategory = () => {
                             <Pagination count={totalPages} page={currentPage} onChange={handlePageChange} color='primary' shape='rounded' />
                         </Box>
                     )}
-                </main>
+                </section>
             </div>
 
             <Drawer anchor='left' open={filtersOpen} onClose={() => setFiltersOpen(false)}>

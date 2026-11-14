@@ -199,7 +199,7 @@ const ProductDetail = () => {
                         }}
                     />
                     {discount > 0 && <span className='detail__badge'>{discount}% OFF</span>}
-                    <span className='detail__zoom-hint'>Hover to zoom</span>
+                    <span className='detail__zoom-hint' aria-hidden='true'>Hover to zoom</span>
                 </div>
 
                 <div className='detail__info'>
@@ -239,9 +239,9 @@ const ProductDetail = () => {
                     <div className='detail__quantity'>
                         <span>Quantity</span>
                         <div className='qty'>
-                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}>−</button>
-                            <span>{quantity}</span>
-                            <button onClick={() => setQuantity(q => Math.min(MAX_QUANTITY, q + 1))} disabled={quantity >= MAX_QUANTITY}>+</button>
+                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1} aria-label='Decrease quantity'>−</button>
+                            <span aria-live='polite'>{quantity}</span>
+                            <button onClick={() => setQuantity(q => Math.min(MAX_QUANTITY, q + 1))} disabled={quantity >= MAX_QUANTITY} aria-label='Increase quantity'>+</button>
                         </div>
                     </div>
 
@@ -252,10 +252,10 @@ const ProductDetail = () => {
                         <Button variant='contained' size='large' color='secondary' startIcon={<BsLightningChargeFill />} disabled={adding} onClick={() => handleAddToCart(true)}>
                             Buy Now
                         </Button>
-                        <Button variant='outlined' size='large' color={inWishlist ? 'error' : 'inherit'} disabled={wishlistLoading} onClick={handleWishlist} aria-label='Wishlist'>
+                        <Button variant='outlined' size='large' color={inWishlist ? 'error' : 'inherit'} disabled={wishlistLoading} onClick={handleWishlist} aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}>
                             {inWishlist ? <AiFillHeart size={22} /> : <AiOutlineHeart size={22} />}
                         </Button>
-                        <Button variant='outlined' size='large' color='inherit' onClick={shareProduct} aria-label='Share'>
+                        <Button variant='outlined' size='large' color='inherit' onClick={shareProduct} aria-label='Share product'>
                             <AiOutlineShareAlt size={22} />
                         </Button>
                     </div>

@@ -46,7 +46,8 @@
     transition: opacity 0.2s;
 }
 
-.hero-carousel__frame:hover .hero-carousel__arrow {
+.hero-carousel__frame:hover .hero-carousel__arrow,
+.hero-carousel__arrow:focus-visible {
     opacity: 1;
 }
 

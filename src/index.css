@@ -7,3 +7,36 @@ body {
 img {
   max-width: 100%;
 }
+
+/* visible focus ring for keyboard users */
+:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+/* "Skip to content" link: hidden until it gets keyboard focus */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #1976d2;
+  color: #fff !important;
+  font-weight: 600;
+  transform: translateY(-150%);
+  transition: transform 0.2s;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+body.dark-mode :focus-visible {
+  outline-color: #93c5fd;
+}
