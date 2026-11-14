@@ -21,14 +21,36 @@ place an order and see their previous orders.
 
 ### Everything else
 - Store-style header with offer strip, search with live suggestions and category bar
-- Home page with banner slider, Shop by Category, Trending Now and Best Deals
-- Product listing with filter sidebar (category, type, price, brand, rating), sorting and pagination
-- Product page with image zoom, MRP / discount, quantity, Add to Cart, Buy Now and delivery info
-- Register / login (split-screen), profile with tabs, change password, delete account
-- Cart with quantity controls and price details, wishlist, move to wishlist
-- 3-step checkout (Address → Review → Place Order, Cash on Delivery) and My Orders page
+- Home page with banner slider, Shop by Category, Recently Viewed, Trending Now, Best Deals and New Arrivals
+- Product listing with filter sidebar (category, type, price, brand, rating), removable filter chips, sorting (kept in the URL) and pagination
+- Search that understands words like "shoes", "clothing" or "jewellery", with keyboard navigation (↑ ↓ Enter Esc)
+- Product page with image zoom, MRP / discount, quantity, Add to Cart, Buy Now, delivery info and a sticky buy bar on phones
+- Register / login (split-screen) with password strength meter, back to the previous page after login, profile with tabs, change password, delete account
+- Logins expire after 7 days; expired sessions are logged out automatically
+- Cart with quantity controls and price details, coupon `SAVE10` (10% off, up to ₹500), wishlist, move to wishlist, move all to cart
+- 3-step checkout (Address → Review → Place Order, Cash on Delivery)
+- My Orders with cancel order, printable invoice and total savings
 - Free delivery on orders of ₹999 or more, otherwise ₹99
-- Responsive layout (desktop + mobile navigation) and dark mode
+- Responsive layout (desktop + mobile navigation), dark mode, 404 page, back-to-top button and page titles
+- Keyboard and screen reader friendly: skip link, visible focus, labelled buttons
+
+## Screenshots
+
+| Home | Product list with filters |
+|---|---|
+| ![Home](screenshots/home.jpg) | ![Product list](screenshots/products.png) |
+
+| Product page | Cart with Smart Budget |
+|---|---|
+| ![Product page](screenshots/product.png) | ![Cart with Smart Budget](screenshots/cart.png) |
+
+| Price Comparison | Checkout review |
+|---|---|
+| ![Price Comparison](screenshots/compare.png) | ![Checkout review](screenshots/checkout.png) |
+
+| My Orders |
+|---|
+| ![My Orders](screenshots/orders.png) |
 
 ## Modules
 
@@ -85,6 +107,7 @@ cp .env.example .env        # then set JWT_SECRET to any long random text
 npm install
 node seed.js                # loads the sample products into MongoDB
 node index.js               # API runs on http://localhost:5001
+npm test                    # (optional, in a second terminal) checks the main API routes
 
 # 3. frontend (in a new terminal, from the project root)
 cp .env.example .env
@@ -111,3 +134,4 @@ npm start                   # website opens on http://localhost:3000
 | GET / POST / DELETE | `/api/wishlist/...` | Fetch, add, remove wishlist items |
 | POST | `/api/order/placeorder` | Place an order from the cart |
 | GET | `/api/order/getPreviousOrders` | User's previous orders |
+| PUT | `/api/order/cancel/:id` | Cancel an order that is still "Placed" |
