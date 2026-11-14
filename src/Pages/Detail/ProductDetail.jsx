@@ -289,6 +289,21 @@ const ProductDetail = () => {
                 </section>
             )}
 
+            {/* phones: price and buy buttons stay visible while scrolling */}
+            <div className='buy-bar'>
+                <div className='buy-bar__price'>
+                    <b>{formatPrice(product.price * quantity)}</b>
+                    {discount > 0 && <span>{discount}% off{quantity > 1 ? ` • ${quantity} items` : ''}</span>}
+                    {discount === 0 && quantity > 1 && <span>{quantity} items</span>}
+                </div>
+                <Button variant='outlined' startIcon={<MdAddShoppingCart />} disabled={adding} onClick={() => handleAddToCart(false)}>
+                    Add to Cart
+                </Button>
+                <Button variant='contained' color='secondary' startIcon={<BsLightningChargeFill />} disabled={adding} onClick={() => handleAddToCart(true)}>
+                    Buy Now
+                </Button>
+            </div>
+
             <Dialog open={openAlert} TransitionComponent={Transition} keepMounted onClose={() => setOpenAlert(false)}>
                 <DialogContent sx={{ width: { xs: 280, md: 350 }, textAlign: 'center' }}>
                     <Typography variant='h6'>Please login to continue</Typography>

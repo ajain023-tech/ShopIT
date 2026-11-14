@@ -303,3 +303,96 @@ body.dark-mode .qty {
 body.dark-mode .qty button {
     background: #334155;
 }
+
+body.dark-mode .detail__image-box {
+    background: #0f172a;
+}
+
+body.dark-mode .detail__budget {
+    background: #14532d;
+    color: #bbf7d0;
+}
+
+body.dark-mode .detail__budget--over {
+    background: #450a0a;
+    color: #fecaca;
+}
+
+/* ─── Sticky buy bar (phones only) ───────────────────────── */
+.buy-bar {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .detail {
+        padding-bottom: 96px;
+    }
+
+    .buy-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 60px;
+        z-index: 990;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        background: #fff;
+        box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .buy-bar__price {
+        display: flex;
+        flex-direction: column;
+        margin-right: auto;
+        min-width: 0;
+        line-height: 1.2;
+    }
+
+    .buy-bar__price b {
+        font-size: 18px;
+    }
+
+    .buy-bar__price span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #2e7d32;
+        white-space: nowrap;
+    }
+
+    .buy-bar .MuiButton-root {
+        flex-shrink: 0;
+        min-height: 42px;
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    /* keep the floating buttons above the buy bar */
+    body:has(.buy-bar) .scroll-top {
+        bottom: 140px;
+    }
+
+    body:has(.buy-bar) .scroll-top--raised {
+        bottom: 254px;
+    }
+
+    body:has(.buy-bar) .compare-bar {
+        bottom: 136px;
+    }
+}
+
+@media (max-width: 380px) {
+    .buy-bar .MuiButton-startIcon {
+        display: none;
+    }
+}
+
+body.dark-mode .buy-bar {
+    background: #1e293b;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .buy-bar__price span {
+    color: #86efac;
+}
