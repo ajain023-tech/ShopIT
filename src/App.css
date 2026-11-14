@@ -196,3 +196,113 @@ body.dark-mode .MuiChip-root {
 body.dark-mode .footer-root {
   background: #020617 !important;
 }
+/* About and Contact use a light grey page background */
+body.dark-mode .info-page {
+  background-color: #0f172a !important;
+}
+
+/* MUI text that is grey-on-white by default */
+body.dark-mode .MuiBreadcrumbs-root,
+body.dark-mode .MuiBreadcrumbs-separator,
+body.dark-mode .MuiStepLabel-label,
+body.dark-mode .MuiTab-root,
+body.dark-mode .MuiFormHelperText-root,
+body.dark-mode .MuiFormControlLabel-label,
+body.dark-mode .MuiCheckbox-root,
+body.dark-mode .MuiRadio-root,
+body.dark-mode .MuiInputAdornment-root,
+body.dark-mode .MuiIconButton-root {
+  color: #cbd5e1;
+}
+
+body.dark-mode .MuiStepLabel-label.Mui-active,
+body.dark-mode .MuiStepLabel-label.Mui-completed {
+  color: #e2e8f0;
+}
+
+body.dark-mode .MuiTab-root.Mui-selected {
+  color: #93c5fd;
+}
+
+body.dark-mode .MuiStepIcon-root:not(.Mui-active):not(.Mui-completed) {
+  color: #475569;
+}
+
+body.dark-mode .MuiOutlinedInput-notchedOutline {
+  border-color: #475569;
+}
+
+body.dark-mode .MuiButton-outlined.MuiButton-colorInherit {
+  border-color: #475569;
+}
+
+body.dark-mode .MuiSkeleton-root {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .MuiRating-iconEmpty {
+  color: #475569;
+}
+
+/* ─── Dark mode: fixes for page components ──────────────── */
+
+/* Budget.css */
+body.dark-mode .savings {
+    border-color: #166534;
+}
+
+body.dark-mode .savings--urgent {
+    border-color: #7f1d1d;
+}
+
+/* Carousel.css */
+body.dark-mode .hero-carousel__dot:not(.hero-carousel__dot--active) {
+    background: #475569;
+}
+
+/* Compare.css */
+body.dark-mode .compare-table__remove {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .compare-page__header p {
+    color: #94a3b8;
+}
+
+/* SearchBar.css */
+body.dark-mode .search__all {
+    border-top-color: #334155;
+    color: #93c5fd;
+}
+
+body.dark-mode .search__empty {
+    color: #94a3b8;
+}
+
+/* Productsimilar.css */
+body.dark-mode .detail__image-box {
+    background: #0f172a;
+}
+
+body.dark-mode .detail__budget {
+    background: #14532d;
+    color: #bbf7d0;
+}
+
+body.dark-mode .detail__budget--over {
+    background: #450a0a;
+    color: #fecaca;
+}
+
+/* Orders.css */
+body.dark-mode .order__label,
+body.dark-mode .order__item-meta,
+body.dark-mode .order__address {
+    color: #94a3b8;
+}
+
+/* Wishlist.css */
+body.dark-mode .wishlist__title span {
+    color: #94a3b8;
+}
