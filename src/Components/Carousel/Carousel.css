@@ -1,0 +1,153 @@
+.hero-carousel {
+    max-width: 1400px;
+    margin: 16px auto 0;
+    padding: 0 16px;
+}
+
+.hero-carousel__frame {
+    position: relative;
+    height: 380px;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #1e3a5f;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.7s ease, visibility 0.7s;
+}
+
+.hero-slide--active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.hero-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #1f2937;
+    font-size: 28px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.hero-carousel__frame:hover .hero-carousel__arrow {
+    opacity: 1;
+}
+
+.hero-carousel__arrow--left {
+    left: 14px;
+}
+
+.hero-carousel__arrow--right {
+    right: 14px;
+}
+
+.hero-carousel__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.hero-carousel__dot {
+    width: 8px;
+    height: 8px;
+    border: none;
+    border-radius: 8px;
+    background: #c5cdd8;
+    cursor: pointer;
+    transition: width 0.3s, background 0.3s;
+}
+
+.hero-carousel__dot--active {
+    width: 24px;
+    background: #1976d2;
+}
+
+.hero-slide__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10, 25, 47, 0.85) 0%, rgba(10, 25, 47, 0.45) 55%, rgba(10, 25, 47, 0) 100%);
+}
+
+.hero-slide__content {
+    position: relative;
+    max-width: 520px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 56px;
+    color: #fff;
+}
+
+.hero-slide__tag {
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #ff6f00;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.hero-slide__title {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.hero-slide__text {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.hero-slide__button {
+    align-self: flex-start;
+    margin-top: 8px;
+    padding: 12px 28px;
+    border-radius: 10px;
+    background: #fff;
+    color: #1976d2 !important;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.hero-slide__button:hover {
+    transform: translateY(-2px);
+}
+
+
+@media (max-width: 700px) {
+    .hero-carousel__frame {
+        height: 260px;
+    }
+
+    .hero-slide__content {
+        padding: 0 24px;
+    }
+
+    .hero-slide__title {
+        font-size: 26px;
+    }
+
+    .hero-slide__text {
+        font-size: 14px;
+    }
+}

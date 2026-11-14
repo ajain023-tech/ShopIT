@@ -1,0 +1,142 @@
+.listing {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+.listing a {
+    color: inherit;
+}
+
+.listing__layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.listing__sidebar {
+    position: sticky;
+    top: 156px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    max-height: calc(100vh - 176px);
+    overflow-y: auto;
+}
+
+.filters__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.filters__group {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 0 6px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.filters__group:last-child {
+    border-bottom: none;
+}
+
+.filters__group .MuiFormControlLabel-label {
+    font-size: 14px;
+}
+
+.filters__title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.filters__price {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.listing__toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.listing__title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.listing__count {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.listing__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.listing__filter-btn {
+    display: none !important;
+}
+
+.listing__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.listing__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1200px) {
+    .listing__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .listing__layout {
+        grid-template-columns: 1fr;
+    }
+
+    .listing__sidebar {
+        display: none;
+    }
+
+    .listing__filter-btn {
+        display: inline-flex !important;
+    }
+
+    .listing__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+body.dark-mode .listing__sidebar {
+    background: #1e293b;
+}
+
+body.dark-mode .filters__header,
+body.dark-mode .filters__group {
+    border-color: #334155;
+}
