@@ -62,7 +62,8 @@
     color: #1f2937;
 }
 
-.search__item:hover {
+.search__item:hover,
+.search__item--active {
     background: #f5f6f8;
 }
 
@@ -116,6 +117,7 @@ body.dark-mode .search__item {
     color: #e2e8f0;
 }
 
-body.dark-mode .search__item:hover {
+body.dark-mode .search__item:hover,
+body.dark-mode .search__item--active {
     background: #334155;
 }
