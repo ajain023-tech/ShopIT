@@ -1,0 +1,11 @@
+export const payment = '/images/payment.jpg';
+export const profile = '/images/profile.jpg';
+export const MaleCloth = '/images/male-clothes.jpg';
+export const FemaleCloth = '/images/female-clothes.jpg';
+export const GroupCloth = '/images/clothes-banner.jpg';
+export const Electronics = '/images/electronics.jpg';
+export const Jewelry = '/images/jewelry.jpg';
+export const Shoes = '/images/shoes.jpg';
+export const Books = '/images/books.jpg';
+export const EmptyCart = '/images/empty-cart.jpg';
+export const customerReview = '/images/customer-review.jpg';

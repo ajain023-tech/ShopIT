@@ -1,0 +1,9 @@
+body {
+  background: #f5f6f8;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+}
