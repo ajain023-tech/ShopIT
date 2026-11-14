@@ -1,0 +1,75 @@
+.panel {
+    padding: 24px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    margin-bottom: 14px;
+    border: 1px solid #eef0f3;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.boxHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.item img {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.item span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.payment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.payment svg {
+    font-size: 22px;
+    color: #2e7d32;
+}
+
+:global(body.dark-mode) .panel {
+    background: #1e293b;
+}
+
+:global(body.dark-mode) .box {
+    border-color: #334155;
+}
