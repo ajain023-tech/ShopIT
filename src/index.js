@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import './index.css';
 import App from './App';
 import Context from './Context/Context';
+import './Helpers/session'; // logs the user out when the server answers 401
 
 // one colour scheme and one font for the whole website
 const theme = createTheme({
