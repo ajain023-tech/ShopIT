@@ -80,6 +80,24 @@
     border-top: 1px solid #eef0f3;
 }
 
+.orders__saved {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #2e7d32;
+    font-size: 15px;
+}
+
+.orders__saved svg {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
 @media (max-width: 600px) {
     .order__id {
         margin-left: 0;
@@ -98,4 +116,16 @@ body.dark-mode .order__item,
 body.dark-mode .order__address,
 body.dark-mode .order__actions {
     border-color: #334155;
+}
+
+body.dark-mode .order__label,
+body.dark-mode .order__item-meta,
+body.dark-mode .order__address {
+    color: #94a3b8;
+}
+
+body.dark-mode .orders__saved {
+    background: #14532d;
+    border-color: #166534;
+    color: #bbf7d0;
 }
