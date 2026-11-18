@@ -295,3 +295,109 @@ body.dark-mode .compare-table td {
 body.dark-mode .compare-best {
     background: #14532d;
 }
+
+body.dark-mode .compare-table__remove {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .compare-page__header p {
+    color: #94a3b8;
+}
+
+/* ─── Compare on phones: cards instead of the table ──────── */
+.compare-cards {
+    display: none;
+}
+
+.compare-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.compare-card__top {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+}
+
+.compare-card__top img {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.compare-card__title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-right: 32px;
+    min-width: 0;
+}
+
+.compare-card__remove {
+    top: 12px;
+    right: 12px;
+}
+
+.compare-card__rows {
+    margin: 0;
+}
+
+.compare-card__row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid #eef0f3;
+    font-size: 14px;
+}
+
+.compare-card__row dt {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.compare-card__row dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+    .compare-table-wrap {
+        display: none;
+    }
+
+    .compare-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .compare-verdict__item {
+        min-width: 100%;
+    }
+
+    .compare-page__header h1 {
+        font-size: 20px;
+    }
+}
+
+body.dark-mode .compare-card {
+    background: #1e293b;
+}
+
+body.dark-mode .compare-card__row {
+    border-color: #334155;
+}
+
+body.dark-mode .compare-card__row dt {
+    color: #94a3b8;
+}
