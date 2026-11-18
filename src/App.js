@@ -14,6 +14,7 @@ import DesktopNavigation from './Navigation/DesktopNavigation';
 import Wishlist from './Pages/WhisList/Wishlist';
 import OrderSuccess from './Pages/Payment/OrderSuccess';
 import Orders from './Pages/Orders/Orders';
+import Invoice from './Pages/Orders/Invoice';
 import Compare from './Pages/Compare/Compare';
 import CompareBar from './Components/Compare/CompareBar';
 import ScrollTop from './Components/ScrollTop/ScrollTop';
@@ -55,6 +56,7 @@ function App() {
             <Route path='/update' element={<UpdateDetails />} />
             <Route path='/ordersuccess' element={<OrderSuccess />} />
             <Route path='/orders' element={<Orders />} />
+            <Route path='/orders/:id/invoice' element={<Invoice />} />
             <Route path='/compare' element={<Compare />} />
             <Route path='/about' element={<About />} />
             <Route path='/contact' element={<Contact />} />
